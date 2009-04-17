@@ -1,0 +1,18 @@
+indexes:
+
+
+- kind: Gamestate
+  properties:
+  - name: player
+  - name: date
+    direction: desc
+  - name: trail
+  - name: chips
+  - name: iteration
+  - name: round1_choices
+  - name: round1_rational
+  - name: round2_choices
+  - name: round2_rational
+  - name: chips_to_finish
+  - name: include
+  - name: location

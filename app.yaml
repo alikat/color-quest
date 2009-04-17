@@ -1,0 +1,20 @@
+application: color-quest
+version: 2
+runtime: python
+api_version: 1
+
+handlers:
+- url: /
+  script: intro.py
+
+- url: /gameplay
+  script: colorquest.py
+
+- url: /images
+  static_dir: images
+
+- url: /gameplay_start\.html
+  script: initialize.py
+
+- url: /endgame\.html
+  script: end.py
