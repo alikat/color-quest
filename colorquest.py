@@ -25,22 +25,29 @@ class Gamestate(db.Model):
 class MainPage(webapp.RequestHandler):
   def get(self):
     self.response.out.write('<html><body>')
-    
+
     user = users.get_current_user()
     if user:
-      #q = db.GqlQuery("SELECT * FROM Gamestate WHERE user = :1", user)
-      #games = q.fetch(1)
-      query = Gamestate.all()
-      #query.filter('player = ', user)
-      query.order('-date')
-      games = query.fetch(1)
+      # get the most recent game the user has been playing
+      q = db.GqlQuery("""SELECT *
+                         FROM Gamestate
+                         WHERE player = :1
+                         ORDER BY date DESC
+                         LIMIT 1""",
+                      user)
+      games = q.fetch(1)
+
+      # redirect to the main page if we didn't find any games for this user
+      if len(games) == 0:
+        self.redirect('/')
+        return
 
       game = games[0]
       if (game.game_over):
         self.redirect('/endgame.html')
       else:
         chips = game.chips
-      
+
       # Print out the table displaying the game state data
         self.response.out.write("""
 	<table border="7" bordercolordark="#5599CC" bordercolorlight="#CCEEDF">
