@@ -20,39 +20,122 @@ class Gamestate(db.Model):
   location = db.IntegerProperty()
   game_over = db.BooleanProperty()
   score = db.FloatProperty()
+  trade1 = db.ListProperty(long)
+  trade2 = db.ListProperty(long)
 
 
 class MainPage(webapp.RequestHandler):
-  def get(self):
-    self.response.out.write('<html><body>')
-
+  def post(self):
     user = users.get_current_user()
     if user:
-      # get the most recent game the user has been playing
-      q = db.GqlQuery("""SELECT *
-                         FROM Gamestate
-                         WHERE player = :1
-                         ORDER BY date DESC
-                         LIMIT 1""",
-                      user)
-      games = q.fetch(1)
+      q = db.GqlQuery(""" SELECT * FROM Gamestate
+                        WHERE player = :1
+                        ORDER BY date DESC
+                        LIMIT 1 """, user)
 
+      games = q.fetch(1)
+      
       # redirect to the main page if we didn't find any games for this user
-      if len(games) == 0:
+      if (len(games) == 0):
         self.redirect('/')
         return
 
       game = games[0]
+      chips = game.chips
+
+      name = self.request.get("Choice_1", '')
+
+      # if received trade agreement, update chip counts, location, etc.
+      if (name != ''):
+        for i in range(len(chips)):
+          chips[i] = chips[i] + game.trade1[i]
+
+      name = self.request.get("Choice_2", '')
+      
+      if (name != ''):
+        for i in range(len(chips)):
+          chips[i] = chips[i] + game.trade2[i]
+      
+      
+      game.iteration = game.iteration + 1
+      next_color = game.trail[game.location + 1]
+      if (chips[next_color] > 0):
+        chips[next_color] = chips[next_color] - 1
+        game.location = game.location + 1
+          
+      if (game.location == len(game.trail)):
+        game.game_over = true
+
+      if (game.location + 1 == game.iteration - 5):
+        game.game_over = True
+
+      game.chips = chips
+      game.put()
+
+      self.redirect('/gameplay')
+
+
+  def get(self):
+    self.response.out.write('<html><body>')
+    
+    user = users.get_current_user()
+    if user:
+      # get the most recent game the user has been playing
+      q = db.GqlQuery(""" SELECT * FROM Gamestate
+                          WHERE player = :1
+                          ORDER BY date DESC
+                          LIMIT 1""", user)
+      games = q.fetch(1)
+
+      # redirect to the main page if we didn't find any games for this user
+      if (len(games) == 0):
+        self.redirect('/')
+        return
+
+      game = games[0]
+
       if (game.game_over):
         self.redirect('/endgame.html')
-      else:
+      else:  
         chips = game.chips
 
+        trade1 = [0,0,0,0,0,0,0]
+        trade2 = [0,0,0,0,0,0,0]
+        
+        #Generate Trades
+        trail_temp = []
+        for c in game.trail:
+          if c==0:
+            trail_temp.append('red')
+          if c==1:
+            trail_temp.append('green')
+          if c==2:
+            trail_temp.append('orange')
+          if c==3:
+            trail_temp.append('blue')
+          if c==4:
+            trail_temp.append('yellow')
+          if c==5:
+            trail_temp.append('violet')
+          if c==6:
+            trail_temp.append('black')
+
+        trade1 = createProposal(chips, trail_temp, False, 1);
+        trade2 = createProposal(chips, trail_temp, False, -1);
+
+        print "Trade 1: ", trade1
+        #Save trade in data structure
+        game.trade1 = trade1
+        game.trade2 = trade2
+        
+        game.put()
+      
       # Print out the table displaying the game state data
         self.response.out.write("""
 	<table border="7" bordercolordark="#5599CC" bordercolorlight="#CCEEDF">
 	      <tr>
-	      <td height="37" colspan="4" bgcolor="#ECF2F8"><div align=center><font color="#550000" size=+1><b>Trail</b></font></div></td>
+	      <td height="37" colspan="4" bgcolor="#ECF2F8"><div align=center>
+              <font color="#550000" size=+1><b>Trail</b></font></div></td>
 	      </tr>
 	      <tr>
 	      <td height="38" colspan="4" bordercolor="#FFFFFF"><p>
@@ -67,7 +150,7 @@ class MainPage(webapp.RequestHandler):
               self.response.out.write(""" <td width="30" height="30"> <img width="30" height="30" src="/images/flammes-38.gif">&nbsp;</td>""")
             else:
               if (game.trail[i-1] == -1):
-                self.response.out.write(""" <td width="30" height="30">&nbsp;</td>""")
+                self.response.out.write(""" <td bgcolor="white" width="30" height="30">&nbsp;</td>""")
               if (game.trail[i-1] == 0):
                 self.response.out.write(""" <td bgcolor="red" width="30" height="30">&nbsp;</td> """)
               if (game.trail[i-1] == 1):
@@ -114,72 +197,236 @@ class MainPage(webapp.RequestHandler):
 	    <td bordercolor="#334477" bgcolor="#FFDDAA"><div align="center"><b>Trade Choices</b></div></td>
             <td>
             <table><tr height="50"> <td bgcolor="red"> Red </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade1[0])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="green"> Green </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade1[1])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="orange"> Orange </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade1[2])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="blue"> Blue </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade1[3])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="yellow"> Yellow </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade1[4])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="violet"> Violet </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade1[5])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="black"><font color="white"> Black</font> </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade1[6])
         self.response.out.write(""" </td> </tr> </table> <br>
-                            <FORM METHOD="LINK" ACTION="/gameplay">
-                            <INPUT type="submit" name="Choice 1" value="Select"></FORM></td> """)
+                            <FORM METHOD="POST" ACTION="/gameplay">
+                            <INPUT type="submit" name="Choice_1" value="Accept Trade 1"></FORM></td> """)
         self.response.out.write(""" <td> <table> <tr height = "50"> <td bgcolor="red"> Red </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade2[0])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="green"> Green </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade2[1])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="orange"> Orange </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade2[2])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="blue"> Blue </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade2[3])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="yellow"> Yellow </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade2[4])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="violet"> Violet </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade2[5])
         self.response.out.write(""" </td> </tr> """)
         self.response.out.write(""" <tr height="50"> <td bgcolor="black"><font color="white"> Black</font></td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>0</b>')
+        self.response.out.write('<b>%s</b>' % trade2[6])
         self.response.out.write(""" </td> </tr></table><br>
-                            <FORM METHOD="LINK" ACTION="/gameplay">
-                            <INPUT type="submit" name="Choice 2" value="Select"></FORM></td></tr>
+                            <FORM METHOD="POST" ACTION="/gameplay">
+                            <INPUT type="submit" name="Choice_2" value="Accept Trade 2"></FORM></td></tr>
                             </table>  """)
 
-        game.iteration = game.iteration + 1
-        next_color = game.trail[game.location + 1]
-        if (chips[next_color] > 0):
-          chips[next_color] = chips[next_color] - 1
-          game.location = game.location + 1
-          
-        if (game.location == len(game.trail)):
-          game.game_over = true
 
-        if (game.location + 1 == game.iteration - 5):
-          game.game_over = True
-
-        game.chips = chips
+        #Save all changes in the datastore
         game.put()
-
 
 application = webapp.WSGIApplication(
                                      [('/gameplay', MainPage)],
                                      debug=True)
+
+
+
+def getPlayerChipNeeds(chips,trail):
+  color_order = ['red','green','orange','blue','yellow','violet','black'];
+  chip_needs = [];
+  for color in color_order:
+    index = color_order.index(color);
+    chip_needs.append(chips[index] - trail.count(color));
+  return chip_needs;
+
+def getChipValue(color,chips,trail):
+  if color == ('black' or 6):
+    return 1.0;
+	
+  color_order = ['red','green','orange','blue','yellow','violet','black'];
+  chip_value = 0.0;
+  total_left_in_trail = 0;
+  chip_needs = getPlayerChipNeeds(chips,trail);
+  for c in color_order:
+    index = color_order.index(c);
+    if chip_needs[index] < 0:
+      total_left_in_trail = total_left_in_trail + abs(chip_needs[index]);
+  total_in_trail = trail.count(color);	
+  index = color_order.index(color);
+  diff = total_in_trail - chips[index];
+  if diff > 0:
+    chip_value = 50.0/float(total_left_in_trail); 
+  elif diff <= 0:
+    chip_value = 5.0;
+
+  distance = len(trail);	
+  for trail_color in trail:
+    index = color_order.index(trail_color);
+    if trail_color == color and chip_needs[index] < 0:
+      chip_value = chip_value + distance;
+      return chip_value;
+    else:
+      distance = distance - 1;
+
+  return chip_value;
+
+def getAllChipValues(chips,trail):
+  color_order = ['red','green','orange','blue','yellow','violet','black'];
+  chip_values = [];
+  for color in color_order:
+    chip_values.append(getChipValue(color,chips,trail));
+  return chip_values;
+
+def getMaxChipColor(color_order,chip_values):
+  max_index = 0;	
+  current_index = 0;
+  for i in range(len(chip_values)):
+    if chip_values[max_index] < chip_values[i]:
+      max_index = i;
+  return color_order[max_index]; 
+
+def getMinChipColor(color_order,chip_values):
+  min_index = 0;	
+  current_index = 0;
+  for value in chip_values:
+    if chip_values[min_index] > value and color_order[current_index] != ('black' or 6):
+      min_index = current_index;
+    current_index = current_index + 1;
+  return color_order[min_index]; 
+
+
+def evaluateProposal(proposal,chip_values):
+  current_index = 0;
+  proposal_value = 0;
+  for value in chip_values:
+    proposal_value = proposal_value + proposal[current_index]*value;
+    current_index = current_index + 1;
+  return proposal_value;
+		
+def closeToZeroProposal(proposal,opp_chips,opp_path):	
+  color_order = ['red','green','orange','blue','yellow','violet','black'];
+  color_order_copy = ['red','green','orange','blue','yellow','violet','black'];
+  chip_values = getAllChipValues(opp_chips, opp_path);
+  chip_values_p = getAllChipValues(opp_chips, opp_path);
+  max_chip = getMaxChipColor(color_order_copy,chip_values);
+  max_chip_index = color_order.index(max_chip);
+  while opp_chips[max_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+    del chip_values[color_order_copy.index(max_chip)];
+    del color_order_copy[color_order_copy.index(max_chip)];
+    max_chip = getMaxChipColor(color_order_copy,chip_values);
+    max_chip_index = color_order.index(max_chip);
+  if opp_chips[max_chip_index] > 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+    proposal[max_chip_index] = -1;
+    chip_values = getAllChipValues(opp_chips, opp_path);
+    color_order_copy = ['red','green','orange','blue','yellow','violet','black'];
+    proposal_value = evaluateProposal(proposal,chip_values_p);
+    while proposal_value < 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+      max_chip = getMaxChipColor(color_order_copy,chip_values);
+      max_chip_index = color_order.index(max_chip);
+      if proposal[max_chip_index] < 0:
+        del chip_values[color_order_copy.index(max_chip)];
+        del color_order_copy[color_order_copy.index(max_chip)];
+      else:
+        if proposal_value + chip_values_p[max_chip_index] < 0:
+          proposal[max_chip_index] = proposal[max_chip_index] + 1;
+        else:
+          del chip_values[color_order_copy.index(max_chip)];
+          del color_order_copy[color_order_copy.index(max_chip)];
+      proposal_value = evaluateProposal(proposal,chip_values_p);
+		
+  return proposal;
+
+def createProposal(opp_chips,opp_path,bonus_enabled, agent_generosity):
+  color_order = ['red','green','orange','blue','yellow','violet','black'];
+  color_order_copy = ['red','green','orange','blue','yellow','violet','black'];
+  proposal = [];
+  for color in color_order:
+    proposal.append(0);
+
+  if bonus_enabled:
+    chip_values = getAllChipValues(opp_chips, opp_path);
+    min_chip = getMinChipColor(color_order,chip_values); 
+    min_chip_index = color_order.index(min_chip);
+    proposal[min_chip_index] = 1;
+    proposal[len(color_order)-1] = random.randint(1,4);
+  elif agent_generosity > 0:
+    chip_values = getAllChipValues(opp_chips, opp_path);
+    min_chip = getMinChipColor(color_order,chip_values); 
+    min_chip_index = color_order.index(min_chip);
+    proposal[min_chip_index] = 1;
+    max_chip = getMaxChipColor(color_order_copy,chip_values);
+    max_chip_index = color_order.index(max_chip);
+    proposal[max_chip_index] = 1;
+    del chip_values[color_order_copy.index(max_chip)];
+    del color_order_copy[color_order_copy.index(max_chip)];
+    max_chip = getMaxChipColor(color_order_copy,chip_values);
+    max_chip_index = color_order.index(max_chip);
+    while opp_chips[max_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+      del chip_values[color_order_copy.index(max_chip)];
+      del color_order_copy[color_order_copy.index(max_chip)];
+      max_chip = getMaxChipColor(color_order_copy,chip_values);
+      max_chip_index = color_order.index(max_chip);
+    if opp_chips[max_chip_index] > 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+      proposal[max_chip_index] = -1;
+  elif agent_generosity < 0:
+    chip_values = getAllChipValues(opp_chips, opp_path);
+    #print chip_values;
+    max_chip = getMaxChipColor(color_order_copy,chip_values);
+    max_chip_index = color_order.index(max_chip);
+    #print chip_values;
+    #print color_order_copy;
+    while opp_chips[max_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+      del chip_values[color_order_copy.index(max_chip)];
+      del color_order_copy[color_order_copy.index(max_chip)];
+      max_chip = getMaxChipColor(color_order_copy,chip_values);
+      max_chip_index = color_order.index(max_chip);
+    if opp_chips[max_chip_index] > 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+      proposal[max_chip_index] = -1;
+      #print proposal;
+      del chip_values[color_order_copy.index(max_chip)];
+      del color_order_copy[color_order_copy.index(max_chip)];
+      max_chip = getMaxChipColor(color_order_copy,chip_values);
+      max_chip_index = color_order.index(max_chip);
+      while opp_chips[max_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+        del chip_values[color_order_copy.index(max_chip)];
+        del color_order_copy[color_order_copy.index(max_chip)];
+        max_chip = getMaxChipColor(color_order_copy,chip_values);
+        max_chip_index = color_order.index(max_chip);
+      if opp_chips[max_chip_index] > 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+        proposal[max_chip_index] = 1;
+  elif agent_generosity == 0:
+    proposal = closeToZeroProposal(proposal,opp_chips,opp_path);	
+	
+  chip_values = getAllChipValues(opp_chips, opp_path);
+  proposal_value = evaluateProposal(proposal,chip_values);	
+  proposal.append(int(proposal_value));
+
+  return proposal;
+
+
 
 def main():
   run_wsgi_app(application)

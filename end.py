@@ -24,7 +24,8 @@ class Gamestate(db.Model):
 
 class EndGame(webapp.RequestHandler):
   def get(self):
-    self.response.out.write(""" GAME OVER """)
+    self.response.out.write("""
+      <h1> <font color="#AA4422"><b>GAME OVER</b></font></h1> """)
 
 application = webapp.WSGIApplication(
                                      [('/endgame\.html', EndGame)],
