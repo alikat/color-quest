@@ -286,7 +286,6 @@ def getAllChipValues(chips,trail):
 
 def getMaxChipColor(color_order,chip_values):
   max_index = 0;	
-  current_index = 0;
   for i in range(len(chip_values)):
     if chip_values[max_index] < chip_values[i]:
       max_index = i;
@@ -320,8 +319,9 @@ def closeToZeroProposal(proposal,opp_chips,opp_path):
   while opp_chips[max_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
     del chip_values[color_order_copy.index(max_chip)];
     del color_order_copy[color_order_copy.index(max_chip)];
-    max_chip = getMaxChipColor(color_order_copy,chip_values);
-    max_chip_index = color_order.index(max_chip);
+    if len(color_order_copy) > 0 and len(chip_values) > 0:
+      max_chip = getMaxChipColor(color_order_copy,chip_values);
+      max_chip_index = color_order.index(max_chip);
   if opp_chips[max_chip_index] > 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
     proposal[max_chip_index] = -1;
     chip_values = getAllChipValues(opp_chips, opp_path);
@@ -343,7 +343,7 @@ def closeToZeroProposal(proposal,opp_chips,opp_path):
 		
   return proposal;
 
-def createProposal(opp_chips,opp_path,bonus_enabled, agent_generosity):
+def createProposal(opp_chips,opp_path, bonus_enabled, agent_generosity):
   color_order = ['red','green','orange','blue','yellow','violet','black'];
   color_order_copy = ['red','green','orange','blue','yellow','violet','black'];
   proposal = [];
@@ -366,8 +366,9 @@ def createProposal(opp_chips,opp_path,bonus_enabled, agent_generosity):
     proposal[max_chip_index] = 1;
     del chip_values[color_order_copy.index(max_chip)];
     del color_order_copy[color_order_copy.index(max_chip)];
-    max_chip = getMaxChipColor(color_order_copy,chip_values);
-    max_chip_index = color_order.index(max_chip);
+    if len(color_order_copy) > 0 and len(chip_values) > 0:
+      max_chip = getMaxChipColor(color_order_copy,chip_values);
+      max_chip_index = color_order.index(max_chip);
     while opp_chips[max_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
       del chip_values[color_order_copy.index(max_chip)];
       del color_order_copy[color_order_copy.index(max_chip)];
@@ -385,20 +386,23 @@ def createProposal(opp_chips,opp_path,bonus_enabled, agent_generosity):
     while opp_chips[max_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
       del chip_values[color_order_copy.index(max_chip)];
       del color_order_copy[color_order_copy.index(max_chip)];
-      max_chip = getMaxChipColor(color_order_copy,chip_values);
-      max_chip_index = color_order.index(max_chip);
+      if len(color_order_copy) > 0 and len(chip_values) > 0:
+        max_chip = getMaxChipColor(color_order_copy,chip_values);
+        max_chip_index = color_order.index(max_chip);
     if opp_chips[max_chip_index] > 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
       proposal[max_chip_index] = -1;
       #print proposal;
       del chip_values[color_order_copy.index(max_chip)];
       del color_order_copy[color_order_copy.index(max_chip)];
-      max_chip = getMaxChipColor(color_order_copy,chip_values);
-      max_chip_index = color_order.index(max_chip);
+      if len(color_order_copy) > 0 and len(chip_values) > 0:
+        max_chip = getMaxChipColor(color_order_copy,chip_values);
+        max_chip_index = color_order.index(max_chip);
       while opp_chips[max_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
         del chip_values[color_order_copy.index(max_chip)];
         del color_order_copy[color_order_copy.index(max_chip)];
-        max_chip = getMaxChipColor(color_order_copy,chip_values);
-        max_chip_index = color_order.index(max_chip);
+        if len(color_order_copy) > 0 and len(chip_values) > 0:
+          max_chip = getMaxChipColor(color_order_copy,chip_values);
+          max_chip_index = color_order.index(max_chip);
       if opp_chips[max_chip_index] > 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
         proposal[max_chip_index] = 1;
   elif agent_generosity == 0:
@@ -407,6 +411,16 @@ def createProposal(opp_chips,opp_path,bonus_enabled, agent_generosity):
   chip_values = getAllChipValues(opp_chips, opp_path);
   proposal_value = evaluateProposal(proposal,chip_values);	
   proposal.append(int(proposal_value));
+
+  return proposal;
+
+def createProposal2(opp_chips,opp_path, bonus_enabled, agent_generosity):
+  color_order = ['red','green','orange','blue','yellow','violet','black'];
+  proposal = [];
+  for color in color_order:
+    proposal.append(0);
+  index = color_order.index( opp_path[0] );
+  proposal[index] = 1;
 
   return proposal;
 
