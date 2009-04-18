@@ -87,7 +87,8 @@ class MainPage(webapp.RequestHandler):
         
         #Generate Trades
         trail_temp = []
-        for c in game.trail:
+        for i in range(game.location+1, len(game.trail)):
+          c = game.trail[i]
           if c==0:
             trail_temp.append('red')
           if c==1:
