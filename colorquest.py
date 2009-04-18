@@ -64,7 +64,7 @@ class MainPage(webapp.RequestHandler):
         game.location = game.location + 1
           
       if (game.location == len(game.trail)):
-        game.game_over = true
+        game.game_over = True
 
       if (game.location + 1 == game.iteration - 5):
         game.game_over = True
