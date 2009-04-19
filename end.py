@@ -17,18 +17,22 @@ class EndGame(webapp.RequestHandler):
                         LIMIT 1 """, user)
 
       games = q.fetch(1)
-      
+
       # redirect to the main page if we didn't find any games for this user
       if (len(games) == 0):
         self.redirect('/')
         return
 
       game = games[0]
-      finish = False
 
+      # redirect back to the game if it isn't over yet!
+      if not game.game_over:
+        self.redirect('/gameplay')
+
+      finish = False
       if (game.location + 1 >= len(game.trail)):
         finish = True
-        
+
 
       excess_chips = 0
       for i in range(0,6):
@@ -51,9 +55,9 @@ class EndGame(webapp.RequestHandler):
       game.put()
 
       self.response.out.write("""
-               
+
                <h2> <font color="#445566"> Your Final Score is: %s </font></h2></center>""" % game.score)
-      
+
 
 application = webapp.WSGIApplication(
                                      [('/endgame\.html', EndGame)],
