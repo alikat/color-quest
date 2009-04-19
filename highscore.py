@@ -75,8 +75,8 @@ def get_high_scores_html():
     table_body = ''.join([get_high_scores_row_html(hs) for hs in hscores])
     return """
 <table border="1">
-  <tr><th colspan="3" style="text-align:center;">Hall of Fame</th></tr>
-  <tr><th>Who</th><th>Score</th><th>When (EDT)</th></tr>
+  <tr><th colspan="2" style="text-align:center;">Hall of Fame</th></tr>
+  <tr><th>Who</th><th>Score</th></tr>
 """ + table_body + '</table>'
 
 def get_high_scores_row_html(hs):
@@ -87,4 +87,4 @@ def get_high_scores_row_html(hs):
         edt = hs.date + datetime.timedelta(hours=-4) # UTC to EDT
         hr = str(int(edt.strftime('%I'))) # remove leading 0
         when = edt.strftime('%B %d at ' + hr + ':%M') + edt.strftime('%p').lower()
-    return '<tr><td>%s</td><td>%u</td><td>%s</td></tr>' % (hs.name, hs.score, when)
+    return '<tr><td>%s</td><td>%u<!-- %s --></td></tr>' % (hs.name, hs.score, when)
