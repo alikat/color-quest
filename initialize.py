@@ -59,7 +59,7 @@ class Initialize(webapp.RequestHandler):
             yellow = yellow + 1
           if (i == 5):
             violet = violet + 1
-        
+
 
         game.trail = trail
         game.chips = [red, green, orange, blue, yellow, violet, black]
@@ -74,6 +74,7 @@ class Initialize(webapp.RequestHandler):
         game.round2_choices = 0
         game.round2_rational = 0
         game.chips_to_finish = False
+        game.finalized = False
 
         game.put()
 

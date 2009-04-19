@@ -28,6 +28,12 @@ class EndGame(webapp.RequestHandler):
       # redirect back to the game if it isn't over yet!
       if not game.game_over:
         self.redirect('/gameplay')
+        return
+
+      # redirect back to the main page if this game has already been finalized
+      if game.finalized:
+        self.redirect('/')
+        return
 
       finish = False
       if (game.location + 1 >= len(game.trail)):
@@ -51,6 +57,7 @@ class EndGame(webapp.RequestHandler):
                <center>
                <h1> <font color="#AA4422"><b>GAME OVER</b></font></h1>""")
 
+      game.finalized = True
       game.score = score
       game.put()
 

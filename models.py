@@ -17,3 +17,7 @@ class Gamestate(db.Model):
   score = db.IntegerProperty()
   trade1 = db.ListProperty(long)
   trade2 = db.ListProperty(long)
+
+  # true once the game is finalized by end.py - prevents end.py from being run
+  # more than once for a given game
+  finalized = db.BooleanProperty()
