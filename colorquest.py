@@ -94,7 +94,7 @@ class MainPage(webapp.RequestHandler):
         game.put()
         self.redirect('/endgame')
 
-      if (game.location + 1 == game.iteration - 5):
+      if (game.location + 1 == game.iteration - 7):
         game.game_over = True
         game.put()
         self.redirect('/endgame')
