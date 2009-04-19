@@ -5,6 +5,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 
+from highscore import check_completed_game_for_high_score
 from models import Gamestate
 
 class EndGame(webapp.RequestHandler):
@@ -64,6 +65,9 @@ class EndGame(webapp.RequestHandler):
       self.response.out.write("""
 
                <h2> <font color="#445566"> Your Final Score is: %s </font></h2></center>""" % game.score)
+
+      # high score?
+      self.response.out.write(check_completed_game_for_high_score(game))
 
 
 application = webapp.WSGIApplication(

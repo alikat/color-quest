@@ -21,3 +21,8 @@ class Gamestate(db.Model):
   # true once the game is finalized by end.py - prevents end.py from being run
   # more than once for a given game
   finalized = db.BooleanProperty()
+
+class HighScore(db.Model):
+  name = db.StringProperty()
+  date = db.DateTimeProperty(auto_now_add=True)
+  score = db.IntegerProperty()

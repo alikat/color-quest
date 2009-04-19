@@ -2,6 +2,8 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 
+from highscore import get_high_scores_html
+
 class MainPage(webapp.RequestHandler):
   def get(self):
       user = users.get_current_user()
@@ -17,7 +19,8 @@ class MainPage(webapp.RequestHandler):
 	<p> &nbsp; &nbsp; 5 points for each square crossed </p>
 	<p> &nbsp; &nbsp; 50 points for reaching the end of the trail </p>
 	<p> &nbsp; &nbsp; 5 points for every chip left over after reaching the end of the trail.  (If you do not finish, you get no points for leftover chips!) </p>
-        <p> &nbsp; &nbsp; Black chips at the end of the game are only worth 1 point each; black will never appear as a color on your trail.  </p> <br><br>
+        <p> &nbsp; &nbsp; Black chips at the end of the game are only worth 1 point each; black will never appear as a color on your trail.  </p>
+        <p> &nbsp; &nbsp; <b>Only your first game</b> will considered for the Hall of Fame - do your best!  </p> <br><br>
 
 """)
 
@@ -25,6 +28,8 @@ class MainPage(webapp.RequestHandler):
 	<FORM METHOD="LINK" ACTION="/gameplay_start.html">
 	<INPUT TYPE="submit" VALUE="Continue">
 	</FORM></center>""")
+
+        self.response.out.write(get_high_scores_html())
 
         self.response.out.write("""
 	<p style="text-align: center;"> <font size="-2"> By continuing to use this application, you acknowledge that your gameplay data will be stored for research purposes. </font> </p>
