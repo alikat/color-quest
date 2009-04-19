@@ -29,32 +29,68 @@ class MainPage(webapp.RequestHandler):
       name = self.request.get("Choice_1", '')
 
       # if received trade agreement, update chip counts, location, etc.
+
+    #Actions if they chose Trade 1
       if (name != ''):
         for i in range(len(chips)):
           chips[i] = chips[i] + game.trade1[i]
+        
+        if (game.trade1[7] > game.trade2[7]):
+          if (game.iteration <=15):
+            game.round1_rational = game.round1_rational + 1
+          else:
+            game.round2_rational = game.round2_rational + 1
 
+     #Actions if they chose Trade 2
       name = self.request.get("Choice_2", '')
       
       if (name != ''):
         for i in range(len(chips)):
           chips[i] = chips[i] + game.trade2[i]
+
+        if (game.trade2[7] > game.trade2[7]):
+          if (game.iteration <=15):
+            game.round1_rational = game.round1_rational + 1
+          else:
+            game.round2_rational = game.round2_rational + 1
       
-      
+    
       game.iteration = game.iteration + 1
-      next_color = game.trail[game.location + 1]
-      if (chips[next_color] > 0):
-        chips[next_color] = chips[next_color] - 1
-        game.location = game.location + 1
+
+      #If the player is not in the last spot, update their position
+      if (game.location < (len(game.trail) - 1 )):
+        next_color = game.trail[game.location + 1]
+        if (chips[next_color] > 0):
+          chips[next_color] = chips[next_color] - 1
+          game.location = game.location + 1
+      
+      game.chips = chips
+
+      #Generate a list of chip-requirements for the trail
+      trail_reqs = [0, 0, 0, 0, 0, 0]
+      for i in range(game.location+1, len(game.trail)):
+        trail_reqs[game.trail[i]] = trail_reqs[game.trail[i]] + 1
+
+      #Subtract current chips from trail requirements
+        #Assume player has all the chips they need - if a positive number appears in need, set flag to false
+      needs = [trail_reqs - chips for trail_reqs, chips in zip(trail_reqs, chips)]
+      game.chips_to_finish = True
+      for x in needs:
+        if (x > 0):
+          game.chips_to_finish = False
           
-      if (game.location == len(game.trail)):
+    
+      if (game.location == len(game.trail)-1):
         game.game_over = True
+        game.put()
+        self.redirect('/endgame')
 
       if (game.location + 1 == game.iteration - 5):
         game.game_over = True
-
-      game.chips = chips
+        game.put()
+        self.redirect('/endgame')
+      
       game.put()
-
       self.redirect('/gameplay')
 
 
@@ -82,32 +118,57 @@ class MainPage(webapp.RequestHandler):
       else:  
         chips = game.chips
 
-        trade1 = [0,0,0,0,0,0,0]
-        trade2 = [0,0,0,0,0,0,0]
+        trade1 = [0,0,0,0,0,0,0,0]
+        trade2 = [0,0,0,0,0,0,0,0]
         
-        #Generate Trades
-        trail_temp = []
-        for i in range(game.location+1, len(game.trail)):
-          c = game.trail[i]
-          if c==0:
-            trail_temp.append('red')
-          if c==1:
-            trail_temp.append('green')
-          if c==2:
-            trail_temp.append('orange')
-          if c==3:
-            trail_temp.append('blue')
-          if c==4:
-            trail_temp.append('yellow')
-          if c==5:
-            trail_temp.append('violet')
-          if c==6:
-            trail_temp.append('black')
+        #Generate Trades if they don't have the chips they need to finish
+        if (not game.chips_to_finish):
+          trail_temp = []
 
-        trade1 = createProposal(chips, trail_temp, False, 1);
-        trade2 = createProposal(chips, trail_temp, False, -1);
+        #Only send remaining trail
+          for i in range(game.location+1, len(game.trail)):
+            c = game.trail[i]
+            if c==0:
+              trail_temp.append('red')
+            if c==1:
+              trail_temp.append('green')
+            if c==2:
+              trail_temp.append('orange')
+            if c==3:
+              trail_temp.append('blue')
+            if c==4:
+              trail_temp.append('yellow')
+            if c==5:
+              trail_temp.append('violet')
+            if c==6:
+              trail_temp.append('black')
 
-        print "Trade 1: ", trade1
+          order_var = random.random()
+
+        #Testing base rationality - See if they can identify fair vs. unfair, good vs. bad trades
+          if (game.iteration <= 15):
+            game.round1_choices = game.round1_choices + 1
+            if (order_var < 0.5):
+            #Good trade on Left
+              trade1 = createProposal(chips, trail_temp, False, 1) #Good
+              trade2 = createProposal(chips, trail_temp, False, -1) #Unfair/Bad
+            else:
+            #Good trade on Right
+              trade1 = createProposal(chips, trail_temp, False, -1)#Unfair
+              trade2 = createProposal(chips, trail_temp, False, 1) #Fair
+
+          else:
+            game.round2_choices = game.round2_choices + 1
+            if (order_var < 0.5):
+            #Good trade on Left
+              trade1 = createProposal(chips, trail_temp, False, 1) #Good trade!
+              trade2 = createProposal(chips, trail_temp, True, -1) #zero phenomena
+            else:
+            #Good trade on Right
+              trade1 = createProposal(chips, trail_temp, True, -1) #zero phenomena
+              trade2 = createProposal(chips, trail_temp, False, 1) #Good trade!
+
+        
         #Save trade in data structure
         game.trade1 = trade1
         game.trade2 = trade2
@@ -351,10 +412,10 @@ def createProposal(opp_chips,opp_path, bonus_enabled, agent_generosity):
     proposal.append(0);
 
   if bonus_enabled:
-    chip_values = getAllChipValues(opp_chips, opp_path);
-    min_chip = getMinChipColor(color_order,chip_values); 
-    min_chip_index = color_order.index(min_chip);
-    proposal[min_chip_index] = 1;
+    #chip_values = getAllChipValues(opp_chips, opp_path);
+    #min_chip = getMinChipColor(color_order,chip_values); 
+    #min_chip_index = color_order.index(min_chip);
+    #proposal[min_chip_index] = 1;
     proposal[len(color_order)-1] = random.randint(1,4);
   elif agent_generosity > 0:
     chip_values = getAllChipValues(opp_chips, opp_path);

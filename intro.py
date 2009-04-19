@@ -16,8 +16,8 @@ class MainPage(webapp.RequestHandler):
 	<p> <b> Scoring: </b> <p>
 	<p> &nbsp; &nbsp; 5 points for each square crossed </p>
 	<p> &nbsp; &nbsp; 50 points for reaching the end of the trail </p>
-	<p> &nbsp; &nbsp; 1 point for every chip left over after reaching the end of the trail.  (If you do not finish, you get no points for leftover chips!) </p>
-        <p> &nbsp; &nbsp; Black chips at the end of the game are only worth 1/5th of a point each; black will never appear as a color on your trail.  </p> <br><br>
+	<p> &nbsp; &nbsp; 5 points for every chip left over after reaching the end of the trail.  (If you do not finish, you get no points for leftover chips!) </p>
+        <p> &nbsp; &nbsp; Black chips at the end of the game are only worth 1 point each; black will never appear as a color on your trail.  </p> <br><br>
 
 """)
 

@@ -69,6 +69,11 @@ class Initialize(webapp.RequestHandler):
         game.game_over = False
         game.trade1 = [0,0,0,0,0,0,0]
         game.trade2 = [0,0,0,0,0,0,0]
+        game.round1_choices = 0
+        game.round1_rational = 0
+        game.round2_choices = 0
+        game.round2_rational = 0
+        game.chips_to_finish = False
 
         game.put()
 
