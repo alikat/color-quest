@@ -24,7 +24,8 @@ class EndGame(webapp.RequestHandler):
         return
 
       game = games[0]
-      
+      finish = False
+
       if (game.location + 1 >= len(game.trail)):
         finish = True
         
