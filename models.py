@@ -14,6 +14,6 @@ class Gamestate(db.Model):
   include = db.BooleanProperty()
   location = db.IntegerProperty()
   game_over = db.BooleanProperty()
-  score = db.FloatProperty()
+  score = db.IntegerProperty()
   trade1 = db.ListProperty(long)
   trade2 = db.ListProperty(long)

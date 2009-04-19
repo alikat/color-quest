@@ -65,7 +65,7 @@ class Initialize(webapp.RequestHandler):
         game.chips = [red, green, orange, blue, yellow, violet, black]
         game.iteration = 0
         game.location = -1
-        game.score = 0.0
+        game.score = 0
         game.game_over = False
         game.trade1 = [0,0,0,0,0,0,0]
         game.trade2 = [0,0,0,0,0,0,0]

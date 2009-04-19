@@ -32,10 +32,14 @@ class MainPage(webapp.RequestHandler):
 
     #Actions if they chose Trade 1
       if (name != ''):
+        if (game.iteration <= 15):
+          game.round1_choices = game.round1_choices + 1
+        else:
+          game.round2_choices = game.round2_choices + 1
         for i in range(len(chips)):
           chips[i] = chips[i] + game.trade1[i]
         
-        if (game.trade1[7] > game.trade2[7]):
+        if (game.trade1[7] >= game.trade2[7]):
           if (game.iteration <=15):
             game.round1_rational = game.round1_rational + 1
           else:
@@ -45,10 +49,15 @@ class MainPage(webapp.RequestHandler):
       name = self.request.get("Choice_2", '')
       
       if (name != ''):
+        if (game.iteration <= 15):
+          game.round1_choices = game.round1_choices + 1
+        else:
+          game.round2_choices = game.round2_choices + 1
+
         for i in range(len(chips)):
           chips[i] = chips[i] + game.trade2[i]
 
-        if (game.trade2[7] > game.trade2[7]):
+        if (game.trade2[7] >= game.trade2[7]):
           if (game.iteration <=15):
             game.round1_rational = game.round1_rational + 1
           else:
@@ -147,7 +156,6 @@ class MainPage(webapp.RequestHandler):
 
         #Testing base rationality - See if they can identify fair vs. unfair, good vs. bad trades
           if (game.iteration <= 15):
-            game.round1_choices = game.round1_choices + 1
             if (order_var < 0.5):
             #Good trade on Left
               trade1 = createProposal(chips, trail_temp, False, 1) #Good
@@ -158,7 +166,6 @@ class MainPage(webapp.RequestHandler):
               trade2 = createProposal(chips, trail_temp, False, 1) #Fair
 
           else:
-            game.round2_choices = game.round2_choices + 1
             if (order_var < 0.5):
             #Good trade on Left
               trade1 = createProposal(chips, trail_temp, False, 1) #Good trade!
@@ -191,7 +198,7 @@ class MainPage(webapp.RequestHandler):
           if (i == game.location + 1):
             self.response.out.write(""" <td width="30" height="30"> <img width="30" height="30" src="/images/Stick_sm_016.png">&nbsp;</td>""")
           else:
-            if (i <= game.iteration - 5):
+            if (i <= game.iteration - 7):
               self.response.out.write(""" <td width="30" height="30"> <img width="30" height="30" src="/images/flammes-38.gif">&nbsp;</td>""")
             else:
               if (game.trail[i-1] == -1):
@@ -263,7 +270,7 @@ class MainPage(webapp.RequestHandler):
         self.response.out.write('<b>%s</b>' % trade1[6])
         self.response.out.write(""" </td> </tr> </table> <br>
                             <FORM METHOD="POST" ACTION="/gameplay">
-                            <INPUT type="submit" name="Choice_1" value="Accept Trade 1"></FORM></td> """)
+                            <INPUT type="submit" name="Choice_1" value="Accept Trade 1" title = %s ></FORM></td> """ % trade1[7])
         self.response.out.write(""" <td> <table> <tr height = "50"> <td bgcolor="red"> Red </td> <td>&nbsp; &nbsp;  """)
         self.response.out.write('<b>%s</b>' % trade2[0])
         self.response.out.write(""" </td> </tr> """)
@@ -286,8 +293,8 @@ class MainPage(webapp.RequestHandler):
         self.response.out.write('<b>%s</b>' % trade2[6])
         self.response.out.write(""" </td> </tr></table><br>
                             <FORM METHOD="POST" ACTION="/gameplay">
-                            <INPUT type="submit" name="Choice_2" value="Accept Trade 2"></FORM></td></tr>
-                            </table>  """)
+                            <INPUT type="submit" name="Choice_2" value="Accept Trade 2" title = %s ></FORM></td></tr>
+                            </table>  """ % trade2[7])
 
 
         #Save all changes in the datastore
