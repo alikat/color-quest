@@ -57,7 +57,7 @@ class MainPage(webapp.RequestHandler):
         for i in range(len(chips)):
           chips[i] = chips[i] + game.trade2[i]
 
-        if (game.trade2[7] >= game.trade2[7]):
+        if (game.trade2[7] >= game.trade1[7]):
           if (game.iteration <=15):
             game.round1_rational = game.round1_rational + 1
           else:
