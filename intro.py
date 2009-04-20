@@ -40,7 +40,7 @@ class MainPage(webapp.RequestHandler):
 
         <center>
 	<FORM METHOD="LINK" ACTION="/gameplay_start.html">
-	<button style="height:50px; width:400px; font:bold 24px Arial;">Play now!</button>
+	<button onclick="this.disabled=true;" style="height:50px; width:400px; font:bold 24px Arial;">Play now!</button>
 	</FORM>""")
 
         self.response.out.write(get_high_scores_html())

@@ -217,7 +217,9 @@ class MainPage(webapp.RequestHandler):
         trade_row_start = '''<tr>
 <td style="width:200px">
   <FORM METHOD="POST" ACTION="/gameplay" style=" padding:0; margin:0">
-    <INPUT type="submit" name="Choice_%u" value="Accept Trade %u" style="height:%upx">%s
+    <INPUT type="submit" id="Choice_%u" name="Choice_%u" value="Accept Trade %u" style="height:%upx"
+           onclick="document.getElementById('Choice_1').disabled=true;
+                    document.getElementById('Choice_2').disabled=true;">%s
   </FORM>
 </td>'''
         warning = '''
@@ -239,7 +241,7 @@ class MainPage(webapp.RequestHandler):
               rh = 50
               extra =  warning % (100.0 - 100.0*game.trade_honesty)
 
-          write(trade_row_start % (t, t, rh, extra))
+          write(trade_row_start % (t, t, t, rh, extra))
           for i in range(NUM_COLORS):
             if HIDE_UNNEEDED_TRADE_CELLS and trade[i]==0:
               write('<td style="background-color:#CCCCCC"></td>')
