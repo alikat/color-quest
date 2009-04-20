@@ -1,5 +1,5 @@
 import cgi
-from random import randint
+from random import choice
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -27,13 +27,20 @@ class Initialize(webapp.RequestHandler):
       game.player = user
 
       trail_length = 30
-      trail = [randint(0,5) for _ in range(trail_length)]
+      num_chips = 20
 
+      # generate all the random numbers at once using choice() for efficiency
+      choices = [0, 1, 2, 3, 4, 5]
+      nums = [choice(choices) for _ in range(trail_length + num_chips)]
+
+      # make the trail from the first set of numbers
+      trail = nums[:trail_length]
+
+      # the remaining numbers identify chips
       num_colors = 7
       chips = num_colors * [0]
-      num_chips = 20
-      for _ in range(num_chips):
-        chips[randint(0,5)] += 1
+      for i in nums[trail_length:]:
+        chips[i] += 1
 
       game.trail = trail
       game.chips = chips
