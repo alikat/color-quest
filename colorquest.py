@@ -12,6 +12,7 @@ COLORS = ['red', 'green', 'orange', 'blue', 'yellow', 'violet', 'black']
 HTML_COLORS    = ['#FF0000', '#00FF00', '#FFAA00', '#0000FF', '#FFFF00', '#DD00DD', '#000000']
 HTML_COLORS_FG = ['#000000', '#000000', '#000000', '#FFFFFF', '#000000', '#FFFFFF', '#FFFFFF']
 NUM_COLORS = len(COLORS)
+HIDE_UNNEEDED_TRADE_CELLS = True
 
 class MainPage(webapp.RequestHandler):
   def post(self):
@@ -222,7 +223,10 @@ class MainPage(webapp.RequestHandler):
           write(trade_row_start % (t, t))
           trade = trade1 if t == 1 else trade2
           for i in range(NUM_COLORS):
-            write('<td style="background-color:%s; color:%s;">%u</td>' % (HTML_COLORS[i], HTML_COLORS_FG[i], trade[i]))
+            if HIDE_UNNEEDED_TRADE_CELLS and trade[i]==0:
+              write('<td style="background-color:#CCCCCC"></td>')
+            else:
+              write('<td style="background-color:%s; color:%s;">%u</td>' % (HTML_COLORS[i], HTML_COLORS_FG[i], trade[i]))
           write('</tr>')
         write('</table></div>')
 
