@@ -18,8 +18,6 @@ HALFWAY_POINT = 15
 
 DEBUG_SHOW_VALUES = True
 
-DEBUG_SHOW_VALUES = True
-
 class MainPage(webapp.RequestHandler):
   def post(self):
     user = users.get_current_user()
