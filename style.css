@@ -55,11 +55,11 @@ div#trail {
 }
 
 #trail table {
-    border: 2px solid black;
+    border: 0;
 }
 
 #trail td, #player td, #fire td {
-    border: 1px solid black;
+    border: 0;
 }
 
 #trail td, #player td, #fire td {
@@ -99,10 +99,10 @@ div#chips {
 }
 
 #chips input {
-    background-color: #FFDDAA;
     font: bold 24px Arial;
-    width:100%;
-    height:100px;
+    width:160px;
+    height:50px;
+    cursor: hand;
 }
 
 div#scam {

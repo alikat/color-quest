@@ -15,15 +15,14 @@ class MainPage(webapp.RequestHandler):
 	<h1 style="color: #AA4422; margin:10px 0"><b>Color Quest</b></h1>
 	<h2 style="font: bold 18px Arial; margin-top:5px"><i>A simple bargaining game.</i></h2>
 
-        <p><b><u>The Game</u></b>:
-        <ul>
-          <li>There is a path made of colored squares.</li>
-          <li>Crossng a square costs a chip with the same color as the square.</li>
-          <li>You wll not start with all the chips you need.</li>
-          <li>Each turn you will be <i>offered a choice</i> between two trades.</li>
-          <li>Be quick: after the first few rounds, the trail will begin to burn. If the fire catches up to you, GAME OVER!!</li>
-          <li><b>Goal</b>: Get the high score!</li>
-        </ul></p>
+        <p><b><u>The Game</u></b>: <blockquote><i>Try to reach the goal and accumulate as
+many points as possible along the way!  Each square in the path has a different
+color.  In order to cross a square, you must give up a chip of the same color as
+the square. You will probably not have all the chips you need to reach the goal,
+so to get them you must <u>choose among the proposals offered by the your
+computer opponent</u>.  Be quick, however, because after the first few rounds,
+the trail will begin to burn.  If the fire catches up to you, GAME OVER!!</i></blockquote>
+</p>
 
 	<p><b><u>Scoring</u></b>:
         <ul>
@@ -32,7 +31,7 @@ class MainPage(webapp.RequestHandler):
           <li><b><u>If you finish the game</u></b>, you also get:
           <ul>
             <li><i>+5</i> points for every non-black chip you have left</li>
-            <li><i>+1</i> point for every black chip you have left</li>
+            <li><i>+1</i> point for every black chip you have left - there will be no blacks in your trail.</li>
             <li><i>+50</i> points for reaching the end of the trail</li>
           </ul>
         </ul>

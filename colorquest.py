@@ -240,7 +240,7 @@ class MainPage(webapp.RequestHandler):
           trade = trade1 if t == 1 else trade2
 
           # show a warning about a dishonest trader in the second half for the rational choice
-          rh = 100
+          rh = 50
           extra = ''
           if game.iteration > HALFWAY_POINT and game.trade_honesty < 1.0:
             other_trade = trade1 if t != 1 else trade2
