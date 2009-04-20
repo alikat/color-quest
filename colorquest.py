@@ -9,6 +9,9 @@ from html import write_header, write_footer
 from models import Gamestate
 
 COLORS = ['red', 'green', 'orange', 'blue', 'yellow', 'violet', 'black']
+HTML_COLORS    = ['#FF0000', '#00FF00', '#FFAA00', '#0000FF', '#FFFF00', '#DD00DD', '#000000']
+HTML_COLORS_FG = ['#000000', '#000000', '#000000', '#FFFFFF', '#000000', '#FFFFFF', '#FFFFFF']
+NUM_COLORS = len(COLORS)
 
 class MainPage(webapp.RequestHandler):
   def post(self):
@@ -177,18 +180,12 @@ class MainPage(webapp.RequestHandler):
         game.put()
 
         # Print out the table displaying the game state data
-        self.response.out.write("""
-	<table border="7" bordercolordark="#5599CC" bordercolorlight="#CCEEDF" style="margin-top:-22px">
-	      <tr>
-	      <td height="37" colspan="4" bgcolor="#ECF2F8"><div align=center>
-              <font color="#550000" size=+1><b>Trail</b></font></div></td>
-	      </tr>
-	      <tr>
-	      <td colspan="4" bordercolor="#FFFFFF"><p>
-              <table id="trail"><tr>
-          """)
+        write = self.response.out.write
+        write('<div id="game">')
+        write('<div id="pathname"><h2>The Path</h2></div>')
 
         # Print out the trail, colour in the trail as appropriate
+        write('<div id="trail"><table><tr>')
         for i in (range(31)):
           if i == game.location + 1:
             idf = 'id="player"'
@@ -198,88 +195,38 @@ class MainPage(webapp.RequestHandler):
             idf = ''
 
           color_num = game.trail[i-1]
-          color = 'white' if color_num == -1 else COLORS[color_num]
+          color = '#FFFFFF' if color_num == -1 else HTML_COLORS[color_num]
           self.response.out.write("""<td %s bgcolor="%s">&nbsp;</td>""" % (idf, color))
+        write('</tr></table></div>')
 
         #Output the chip counts of each colour
-        self.response.out.write("""  </tr></table>
-              </p></td></tr> <tr>
-	      <td bordercolor="#334477" bgcolor="#FFDDAA"><div align="center"><b>Your Chips</b></font></div></td>
-	      <td colspan="3" bordercolor="#334477"><p>
-                    <table><tr height="50"> <td bgcolor="red"> Red </td> <td>&nbsp; &nbsp; """)
-        self.response.out.write('<b>%s</b>' % chips[0])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="green"> Green </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % chips[1])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="orange"> Orange </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % chips[2])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="blue"> Blue </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % chips[3])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="yellow"> Yellow </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % chips[4])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="violet"> Violet </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % chips[5])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor=black><font color="white"> Black</font></td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % chips[6])
-        self.response.out.write(""" </td> </tr> </table> </td> </tr>&nbsp; &nbsp;  """)
+        write('<div id="chips"><table width="100%"><tr>')
+        write('<td style="background-color:#FFDDAA; font: bold 24px Arial; width:200px">Your Chips</td>');
+        for i in range(NUM_COLORS):
+          write('<td style="background-color:%s; color:%s;">%u</td>' % (HTML_COLORS[i], HTML_COLORS_FG[i], chips[i]))
+        write('</tr></table></div>')
 
-      #Print out the two choices
-        self.response.out.write("""
-            <tr>
-	    <td bordercolor="#334477" bgcolor="#FFDDAA"><div align="center"><b>Trade Choices</b></div></td>
-            <td>
-            <table><tr height="50"> <td bgcolor="red"> Red </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade1[0])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="green"> Green </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade1[1])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="orange"> Orange </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade1[2])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="blue"> Blue </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade1[3])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="yellow"> Yellow </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade1[4])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="violet"> Violet </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade1[5])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="black"><font color="white"> Black</font> </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade1[6])
-        self.response.out.write(""" </td> </tr> </table> <br>
-                            <FORM METHOD="POST" ACTION="/gameplay">
-                            <INPUT type="submit" name="Choice_1" value="Accept Trade 1" title = %s ></FORM></td> """ % trade1[7])
-        self.response.out.write(""" <td> <table> <tr height = "50"> <td bgcolor="red"> Red </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade2[0])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="green"> Green </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade2[1])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="orange"> Orange </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade2[2])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="blue"> Blue </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade2[3])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="yellow"> Yellow </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade2[4])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="violet"> Violet </td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade2[5])
-        self.response.out.write(""" </td> </tr> """)
-        self.response.out.write(""" <tr height="50"> <td bgcolor="black"><font color="white"> Black</font></td> <td>&nbsp; &nbsp;  """)
-        self.response.out.write('<b>%s</b>' % trade2[6])
-        self.response.out.write(""" </td> </tr></table><br>
-                            <FORM METHOD="POST" ACTION="/gameplay">
-                            <INPUT type="submit" name="Choice_2" value="Accept Trade 2" title = %s ></FORM></td></tr>
-                            </table>  """ % trade2[7])
+        #Print out the two choices
+        write('<div id="chips">')
+        write('<div style="padding-bottom:10px;"><h2>Choose between these two trades:</h2></div>')
+        write('<table width="100%">')
+        trade_row_start = '''<tr>
+<td style="width:200px">
+  <FORM METHOD="POST" ACTION="/gameplay" style=" padding:0; margin:0">
+    <INPUT type="submit" name="Choice_%u" value="Accept Trade %u">
+  </FORM>
+</td>'''
+        for t in range(1, 3):
+          if t == 2:
+            write('<tr style="height:20px"><td colspan="%u" style="background-color:#444444;"></td></tr>' % (NUM_COLORS+1))
+          write(trade_row_start % (t, t))
+          trade = trade1 if t == 1 else trade2
+          for i in range(NUM_COLORS):
+            write('<td style="background-color:%s; color:%s;">%u</td>' % (HTML_COLORS[i], HTML_COLORS_FG[i], trade[i]))
+          write('</tr>')
+        write('</table></div>')
+
+        # all done
         write_footer(self)
 
         #Save all changes in the datastore
