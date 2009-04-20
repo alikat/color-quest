@@ -123,6 +123,10 @@ class MainPage(webapp.RequestHandler):
 
       game = games[0]
 
+      # choose a unique, deterministc random seed for each iteration so the
+      # randomness isn't affected by simply reloading the page!
+      random.seed(hash(str(game.key())) + game.iteration)
+
       if (game.game_over):
         self.redirect('/endgame.html')
       else:
