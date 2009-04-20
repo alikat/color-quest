@@ -45,7 +45,14 @@ class MainPage(webapp.RequestHandler):
         game.round2_choices = game.round2_choices + 1
 
       # get which trade was taken
-      took_trade1 = (self.request.get("Choice_1", '') != '')
+      choiceh = self.request.get("choiceh", '')
+      if choiceh == '':
+        # only works if javascript is off (which is when choiceh fails)
+        took_trade1 = (self.request.get("Choice_1", '') != '')
+      else:
+        took_trade1 = (choiceh == 'Accept Trade 1')
+
+      # get the trade objects
       if took_trade1:
         trade_taken = game.trade1
         trade_not_taken = game.trade2
@@ -215,8 +222,10 @@ class MainPage(webapp.RequestHandler):
         trade_row_start = '''<tr>
 <td style="width:200px">
   <FORM METHOD="POST" ACTION="/gameplay" style=" padding:0; margin:0">
+    <input type="hidden" id="choiceh" name="choiceh" value="nil"/>
     <INPUT type="submit" id="Choice_%u" name="Choice_%u" value="Accept Trade %u" style="height:%upx"
-           onclick="document.getElementById('Choice_1').disabled=true;
+           onclick="document.getElementById('choiceh').value = this.value;
+                    document.getElementById('Choice_1').disabled=true;
                     document.getElementById('Choice_2').disabled=true;">%s
   </FORM>
 </td>'''
