@@ -18,3 +18,7 @@ handlers:
 
 - url: /endgame\.html
   script: end.py
+
+- url: /favicon.ico
+  static_files: images/favicon.ico
+  upload: images/favicon.ico
