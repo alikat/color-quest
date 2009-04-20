@@ -17,7 +17,7 @@ class MainPage(webapp.RequestHandler):
                         LIMIT 1 """, user)
 
       games = q.fetch(1)
-      
+
       # redirect to the main page if we didn't find any games for this user
       if (len(games) == 0):
         self.redirect('/')
@@ -38,7 +38,7 @@ class MainPage(webapp.RequestHandler):
           game.round2_choices = game.round2_choices + 1
         for i in range(len(chips)):
           chips[i] = chips[i] + game.trade1[i]
-        
+
         if (game.trade1[7] >= game.trade2[7]):
           if (game.iteration <=15):
             game.round1_rational = game.round1_rational + 1
@@ -47,7 +47,7 @@ class MainPage(webapp.RequestHandler):
 
      #Actions if they chose Trade 2
       name = self.request.get("Choice_2", '')
-      
+
       if (name != ''):
         if (game.iteration <= 15):
           game.round1_choices = game.round1_choices + 1
@@ -62,8 +62,8 @@ class MainPage(webapp.RequestHandler):
             game.round1_rational = game.round1_rational + 1
           else:
             game.round2_rational = game.round2_rational + 1
-      
-    
+
+
       game.iteration = game.iteration + 1
 
       #If the player is not in the last spot, update their position
@@ -72,7 +72,7 @@ class MainPage(webapp.RequestHandler):
         if (chips[next_color] > 0):
           chips[next_color] = chips[next_color] - 1
           game.location = game.location + 1
-      
+
       game.chips = chips
 
       #Generate a list of chip-requirements for the trail
@@ -87,8 +87,8 @@ class MainPage(webapp.RequestHandler):
       for x in needs:
         if (x > 0):
           game.chips_to_finish = False
-          
-    
+
+
       if (game.location == len(game.trail)-1):
         game.game_over = True
         game.put()
@@ -98,14 +98,14 @@ class MainPage(webapp.RequestHandler):
         game.game_over = True
         game.put()
         self.redirect('/endgame')
-      
+
       game.put()
       self.redirect('/gameplay')
 
 
   def get(self):
     self.response.out.write('<html><body>')
-    
+
     user = users.get_current_user()
     if user:
       # get the most recent game the user has been playing
@@ -124,12 +124,12 @@ class MainPage(webapp.RequestHandler):
 
       if (game.game_over):
         self.redirect('/endgame.html')
-      else:  
+      else:
         chips = game.chips
 
         trade1 = [0,0,0,0,0,0,0,0]
         trade2 = [0,0,0,0,0,0,0,0]
-        
+
         #Generate Trades if they don't have the chips they need to finish
         if (not game.chips_to_finish):
           trail_temp = []
@@ -175,13 +175,13 @@ class MainPage(webapp.RequestHandler):
               trade1 = createProposal(chips, trail_temp, True, -1) #zero phenomena
               trade2 = createProposal(chips, trail_temp, False, 1) #Good trade!
 
-        
+
         #Save trade in data structure
         game.trade1 = trade1
         game.trade2 = trade2
-        
+
         game.put()
-      
+
       # Print out the table displaying the game state data
         self.response.out.write("""
 	<table border="7" bordercolordark="#5599CC" bordercolorlight="#CCEEDF">
@@ -220,7 +220,7 @@ class MainPage(webapp.RequestHandler):
         self.response.out.write("""  </tr></table>
               </p></td></tr> <tr>
 	      <td bordercolor="#334477" bgcolor="#FFDDAA"><div align="center"><b>Your Chips</b></font></div></td>
-	      <td colspan="3" bordercolor="#334477"><p>  
+	      <td colspan="3" bordercolor="#334477"><p>
                     <table><tr height="50"> <td bgcolor="red"> Red </td> <td>&nbsp; &nbsp; """)
         self.response.out.write('<b>%s</b>' % chips[0])
         self.response.out.write(""" </td> </tr> """)
@@ -330,7 +330,7 @@ def getChipValue(color,chips,trail):
   index = color_order.index(color);
   diff = total_in_trail - chips[index];
   if diff > 0:
-    chip_value = 50.0/float(total_left_in_trail); 
+    chip_value = 50.0/float(total_left_in_trail);
   elif diff <= 0:
     chip_value = 5.0;
 
@@ -357,7 +357,7 @@ def getMaxChipColor(color_order,chip_values):
   for i in range(len(chip_values)):
     if chip_values[max_index] < chip_values[i]:
       max_index = i;
-  return color_order[max_index]; 
+  return color_order[max_index];
 
 def getMinChipColor(color_order,chip_values):
   min_index = 0;	
@@ -366,7 +366,7 @@ def getMinChipColor(color_order,chip_values):
     if chip_values[min_index] > value and color_order[current_index] != ('black' or 6):
       min_index = current_index;
     current_index = current_index + 1;
-  return color_order[min_index]; 
+  return color_order[min_index];
 
 
 def evaluateProposal(proposal,chip_values):
@@ -414,20 +414,20 @@ def closeToZeroProposal(proposal,opp_chips,opp_path):
 def createProposal(opp_chips,opp_path, bonus_enabled, agent_generosity):
   color_order = ['red','green','orange','blue','yellow','violet','black'];
   color_order_copy = ['red','green','orange','blue','yellow','violet','black'];
-  chip_needs = getPlayerChipNeeds(opp_chips,opp_path); 
+  chip_needs = getPlayerChipNeeds(opp_chips,opp_path);
   proposal = [];
   for color in color_order:
     proposal.append(0);
 
   if bonus_enabled:
     #chip_values = getAllChipValues(opp_chips, opp_path);
-    #min_chip = getMinChipColor(color_order,chip_values); 
+    #min_chip = getMinChipColor(color_order,chip_values);
     #min_chip_index = color_order.index(min_chip);
     #proposal[min_chip_index] = 1;
     proposal[len(color_order)-1] = random.randint(1,4);
   elif agent_generosity > 0:
     chip_values = getAllChipValues(opp_chips, opp_path);
-    min_chip = getMinChipColor(color_order,chip_values); 
+    min_chip = getMinChipColor(color_order,chip_values);
     min_chip_index = color_order.index(min_chip);
     proposal[min_chip_index] = 1;
     max_chip = getMaxChipColor(color_order_copy,chip_values);
@@ -449,7 +449,7 @@ def createProposal(opp_chips,opp_path, bonus_enabled, agent_generosity):
     else:
       chip_values = getAllChipValues(opp_chips, opp_path);
       color_order_copy = ['red','green','orange','blue','yellow','violet','black'];
-      min_chip = getMinChipColor(color_order,chip_values); 
+      min_chip = getMinChipColor(color_order,chip_values);
       min_chip_index = color_order.index(min_chip);
       while opp_chips[min_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
         del chip_values[color_order_copy.index(min_chip)];
