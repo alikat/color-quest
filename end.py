@@ -69,7 +69,9 @@ class EndGame(webapp.RequestHandler):
                <h2> <font color="#445566"> Your Final Score is: %s </font></h2></center>""" % game.score)
 
       # high score?
+      self.response.out.write('<p>')
       self.response.out.write(check_completed_game_for_high_score(game))
+      self.response.out.write('</p>')
       write_footer(self)
 
 application = webapp.WSGIApplication(
