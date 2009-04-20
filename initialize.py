@@ -7,6 +7,8 @@ from google.appengine.ext import db
 
 from models import Gamestate, put_safe
 
+ALLOW_FRAUD = False
+
 class Initialize(webapp.RequestHandler):
   def get(self):
     user = users.get_current_user()
@@ -59,7 +61,10 @@ class Initialize(webapp.RequestHandler):
 
       # 50% of games will be the standard game, the other 50% will be evenly
       # divided between 50%, 75%, and 90%
-      game.trade_honesty = choice([0.5, 0.75, 0.9, 1.0, 1.0, 1.0])
+      if ALLOW_FRAUD:
+        game.trade_honesty = choice([0.5, 0.75, 0.9, 1.0, 1.0, 1.0])
+      else:
+        game.trade_honesty = 1.0
       game.trade_honoured = True
 
       put_safe(game)
