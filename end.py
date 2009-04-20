@@ -7,7 +7,7 @@ from google.appengine.ext import db
 
 from highscore import check_completed_game_for_high_score
 from html import write_header, write_footer
-from models import Gamestate
+from models import Gamestate, put_safe
 
 class EndGame(webapp.RequestHandler):
   def get(self):
@@ -62,7 +62,7 @@ class EndGame(webapp.RequestHandler):
 
       game.finalized = True
       game.score = score
-      game.put()
+      put_safe(game)
 
       self.response.out.write("""
 

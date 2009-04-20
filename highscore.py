@@ -2,7 +2,7 @@ import datetime
 
 from google.appengine.ext import db
 
-from models import HighScore
+from models import HighScore, put_safe
 
 # number of high scores to track
 NUM_HIGH_SCORES = 10
@@ -44,7 +44,7 @@ def add_high_score(game):
     newhs = HighScore()
     newhs.name = str(game.player)
     newhs.score = game.score
-    newhs.put()
+    put_safe(newhs)
 
     # remove the lowest score
     q = db.GqlQuery(GQL_HIGH_SCORES)

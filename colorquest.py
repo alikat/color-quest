@@ -6,7 +6,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 
 from html import write_header, write_footer
-from models import Gamestate
+from models import Gamestate, put_safe
 
 COLORS = ['red', 'green', 'orange', 'blue', 'yellow', 'violet', 'black']
 HTML_COLORS    = ['#FF0000', '#00FF00', '#FFAA00', '#0000FF', '#FFFF00', '#DD00DD', '#000000']
@@ -95,18 +95,18 @@ class MainPage(webapp.RequestHandler):
           game.chips_to_finish = False
 
 
+      redir_to = '/gameplay'
       if (game.location == len(game.trail)-1):
         game.game_over = True
-        game.put()
-        self.redirect('/endgame')
+        redir_to = '/endgame.html'
 
       if (game.location + 1 == game.iteration - 7):
         game.game_over = True
-        game.put()
-        self.redirect('/endgame')
+        redir_to = '/endgame.html'
 
-      game.put()
-      self.redirect('/gameplay')
+      # this put() occasionally times out, so retry it a few times on failure
+      put_safe(game)
+      self.redirect(redir_to)
 
 
   def get(self):
@@ -177,7 +177,7 @@ class MainPage(webapp.RequestHandler):
         game.trade1 = trade1
         game.trade2 = trade2
 
-        game.put()
+        put_safe(game)
 
         # Print out the table displaying the game state data
         write = self.response.out.write
@@ -230,7 +230,7 @@ class MainPage(webapp.RequestHandler):
         write_footer(self)
 
         #Save all changes in the datastore
-        game.put()
+        put_safe(game)
 
 application = webapp.WSGIApplication(
                                      [('/gameplay', MainPage)],
