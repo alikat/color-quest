@@ -6,6 +6,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 
 from highscore import check_completed_game_for_high_score
+from html import write_header, write_footer
 from models import Gamestate
 
 class EndGame(webapp.RequestHandler):
@@ -46,6 +47,7 @@ class EndGame(webapp.RequestHandler):
         excess_chips = excess_chips + game.chips[i]
 
 
+      write_header(self, pb=20)
       score = 5*game.location
       if finish:
         score = score + 50
@@ -68,7 +70,7 @@ class EndGame(webapp.RequestHandler):
 
       # high score?
       self.response.out.write(check_completed_game_for_high_score(game))
-
+      write_footer(self)
 
 application = webapp.WSGIApplication(
                                      [('/endgame\.html', EndGame)],

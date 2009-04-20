@@ -5,6 +5,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 
+from html import write_header, write_footer
 from models import Gamestate
 
 class MainPage(webapp.RequestHandler):
@@ -104,7 +105,7 @@ class MainPage(webapp.RequestHandler):
 
 
   def get(self):
-    self.response.out.write('<html><body>')
+    write_header(self, 0, 0)
 
     user = users.get_current_user()
     if user:
@@ -184,7 +185,7 @@ class MainPage(webapp.RequestHandler):
 
       # Print out the table displaying the game state data
         self.response.out.write("""
-	<table border="7" bordercolordark="#5599CC" bordercolorlight="#CCEEDF">
+	<table border="7" bordercolordark="#5599CC" bordercolorlight="#CCEEDF" style="margin-top:-22px">
 	      <tr>
 	      <td height="37" colspan="4" bgcolor="#ECF2F8"><div align=center>
               <font color="#550000" size=+1><b>Trail</b></font></div></td>
@@ -295,7 +296,7 @@ class MainPage(webapp.RequestHandler):
                             <FORM METHOD="POST" ACTION="/gameplay">
                             <INPUT type="submit" name="Choice_2" value="Accept Trade 2" title = %s ></FORM></td></tr>
                             </table>  """ % trade2[7])
-
+        write_footer(self)
 
         #Save all changes in the datastore
         game.put()
