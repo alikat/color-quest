@@ -441,10 +441,30 @@ def createProposal(opp_chips,opp_path, bonus_enabled, agent_generosity):
     while opp_chips[max_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0 and chip_needs[max_chip_index] <= 0:
       del chip_values[color_order_copy.index(max_chip)];
       del color_order_copy[color_order_copy.index(max_chip)];
-      max_chip = getMaxChipColor(color_order_copy,chip_values);
-      max_chip_index = color_order.index(max_chip);
+      if len(color_order_copy) > 0 and len(chip_values) > 0:
+        max_chip = getMaxChipColor(color_order_copy,chip_values);
+        max_chip_index = color_order.index(max_chip);
     if opp_chips[max_chip_index] > 0 and len(color_order_copy) > 0 and len(chip_values) > 0 and chip_needs[max_chip_index] <= 0:
       proposal[max_chip_index] = -1;
+    else:
+      chip_values = getAllChipValues(opp_chips, opp_path);
+      color_order_copy = ['red','green','orange','blue','yellow','violet','black'];
+      min_chip = getMinChipColor(color_order,chip_values); 
+      min_chip_index = color_order.index(min_chip);
+      while opp_chips[min_chip_index] <= 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+        del chip_values[color_order_copy.index(min_chip)];
+        del color_order_copy[color_order_copy.index(min_chip)];
+        if len(color_order_copy) > 0 and len(chip_values) > 0:
+          min_chip = getMinChipColor(color_order_copy,chip_values);
+          min_chip_index = color_order.index(min_chip);
+      if opp_chips[min_chip_index] > 0 and len(color_order_copy) > 0 and len(chip_values) > 0:
+        proposal[min_chip_index] = -1;
+    if random.randint(1,2) == 1 and proposal.count(1) > 1:
+      chip_values = getAllChipValues(opp_chips, opp_path);
+      min_chip = getMinChipColor(color_order,chip_values);
+      min_chip_index = color_order.index(min_chip);
+      if proposal[min_chip_index] == 1:
+        proposal[min_chip_index] = 0;
   elif agent_generosity < 0:
     chip_values = getAllChipValues(opp_chips, opp_path);
     #print chip_values;
@@ -482,18 +502,6 @@ def createProposal(opp_chips,opp_path, bonus_enabled, agent_generosity):
   proposal.append(int(proposal_value));
 
   return proposal;
-
-def createProposal2(opp_chips,opp_path, bonus_enabled, agent_generosity):
-  color_order = ['red','green','orange','blue','yellow','violet','black'];
-  proposal = [];
-  for color in color_order:
-    proposal.append(0);
-  index = color_order.index( opp_path[0] );
-  proposal[index] = 1;
-
-  return proposal;
-
-
 
 def main():
   run_wsgi_app(application)
