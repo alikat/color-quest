@@ -14,6 +14,8 @@ HTML_COLORS_FG = ['#000000', '#000000', '#000000', '#FFFFFF', '#000000', '#FFFFF
 NUM_COLORS = len(COLORS)
 HIDE_UNNEEDED_TRADE_CELLS = True
 
+DEBUG_SHOW_VALUES = True
+
 class MainPage(webapp.RequestHandler):
   def post(self):
     user = users.get_current_user()
@@ -229,6 +231,9 @@ class MainPage(webapp.RequestHandler):
               write('<td style="background-color:%s; color:%s;">%u</td>' % (HTML_COLORS[i], HTML_COLORS_FG[i], trade[i]))
           write('</tr>')
         write('</table></div>')
+
+        if DEBUG_SHOW_VALUES:
+          write('Trade 1 = %u<br/>Trade 2 = %u' % (trade1[VALUE_INDEX], trade2[VALUE_INDEX]))
 
         # all done
         write_footer(self)
