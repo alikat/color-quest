@@ -26,3 +26,14 @@ class HighScore(db.Model):
   name = db.StringProperty()
   date = db.DateTimeProperty(auto_now_add=True)
   score = db.IntegerProperty()
+
+def put_safe(obj):
+  """Puts obj into the datastore and retries up to three times if a failure occurs."""
+  count = 0
+  while True:
+    try:
+      return obj.put()
+    except db.Timeout:
+      count += 1
+      if count == 3:
+        raise

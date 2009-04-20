@@ -5,7 +5,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 
-from models import Gamestate
+from models import Gamestate, put_safe
 
 class Initialize(webapp.RequestHandler):
   def get(self):
@@ -57,7 +57,7 @@ class Initialize(webapp.RequestHandler):
       game.chips_to_finish = False
       game.finalized = False
 
-      game.put()
+      put_safe(game)
 
     self.redirect('/gameplay')
 
