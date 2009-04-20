@@ -29,13 +29,11 @@ class Initialize(webapp.RequestHandler):
       trail_length = 30
       trail = [random.randint(0,5) for _ in range(trail_length)]
 
-      num_chips = 20
-      chips_start = [random.randint(0,5) for _ in range(num_chips)]
-
       num_colors = 7
       chips = num_colors * [0]
-      for i in chips_start:
-        chips[i] += 1
+      num_chips = 20
+      for i in range(num_chips):
+        chips[random.randint(0,5)] += 1
 
       game.trail = trail
       game.chips = chips
