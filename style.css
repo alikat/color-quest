@@ -63,11 +63,12 @@ div#trail {
 }
 
 #trail td, #player td, #fire td {
-    height: 32px;
-    width: 32px;
+    height: 30px;
+    width: 30px;
 }
 
 td#player {
+    background-color: #FFFFFF;
     background-image: url(images/player.png);
 }
 
