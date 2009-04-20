@@ -103,3 +103,16 @@ div#chips {
     width:100%;
     height:100px;
 }
+
+div#scam {
+    color: #FF0000;
+    font: bold 24px Arial;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+div#warning {
+    color: #FF0000;
+    font: bold 14px Arial;
+    height: 50px;
+}

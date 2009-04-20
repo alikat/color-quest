@@ -57,6 +57,11 @@ class Initialize(webapp.RequestHandler):
       game.chips_to_finish = False
       game.finalized = False
 
+      # 50% of games will be the standard game, the other 50% will be evenly
+      # divided between 50%, 75%, and 90%
+      game.trade_honesty = choice([0.5, 0.75, 0.9, 1.0, 1.0, 1.0])
+      game.trade_honoured = True
+
       put_safe(game)
 
     self.redirect('/gameplay')

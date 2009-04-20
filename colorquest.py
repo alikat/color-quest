@@ -13,6 +13,10 @@ HTML_COLORS    = ['#FF0000', '#00FF00', '#FFAA00', '#0000FF', '#FFFF00', '#DD00D
 HTML_COLORS_FG = ['#000000', '#000000', '#000000', '#FFFFFF', '#000000', '#FFFFFF', '#FFFFFF']
 NUM_COLORS = len(COLORS)
 HIDE_UNNEEDED_TRADE_CELLS = True
+VALUE_INDEX = NUM_COLORS  # last value in the trade list in the value of the trade
+HALFWAY_POINT = 15
+
+DEBUG_SHOW_VALUES = True
 
 DEBUG_SHOW_VALUES = True
 
@@ -35,43 +39,36 @@ class MainPage(webapp.RequestHandler):
       game = games[0]
       chips = game.chips
 
-      name = self.request.get("Choice_1", '')
+      # update the number of choices made
+      is_round1 = (game.iteration <= HALFWAY_POINT)
+      if is_round1:
+        game.round1_choices = game.round1_choices + 1
+      else:
+        game.round2_choices = game.round2_choices + 1
 
-      # if received trade agreement, update chip counts, location, etc.
+      # get which trade was taken
+      took_trade1 = (self.request.get("Choice_1", '') != '')
+      if took_trade1:
+        trade_taken = game.trade1
+        trade_not_taken = game.trade2
+      else:
+        trade_taken = game.trade2
+        trade_not_taken = game.trade1
 
-    #Actions if they chose Trade 1
-      if (name != ''):
-        if (game.iteration <= 15):
-          game.round1_choices = game.round1_choices + 1
+      # determine whether it was rational
+      rational = (trade_taken[VALUE_INDEX] >= trade_not_taken[VALUE_INDEX])
+      if rational:
+        if is_round1:
+          game.round1_rational = game.round1_rational + 1
         else:
-          game.round2_choices = game.round2_choices + 1
+          game.round2_rational = game.round2_rational + 1
+
+      # apply the trade?
+      values_differ = (trade_taken[VALUE_INDEX] != trade_not_taken[VALUE_INDEX])
+      game.trade_honoured = (is_round1 or not values_differ or random.random() <= game.trade_honesty)
+      if game.trade_honoured:
         for i in range(len(chips)):
-          chips[i] = chips[i] + game.trade1[i]
-
-        if (game.trade1[7] >= game.trade2[7]):
-          if (game.iteration <=15):
-            game.round1_rational = game.round1_rational + 1
-          else:
-            game.round2_rational = game.round2_rational + 1
-
-     #Actions if they chose Trade 2
-      name = self.request.get("Choice_2", '')
-
-      if (name != ''):
-        if (game.iteration <= 15):
-          game.round1_choices = game.round1_choices + 1
-        else:
-          game.round2_choices = game.round2_choices + 1
-
-        for i in range(len(chips)):
-          chips[i] = chips[i] + game.trade2[i]
-
-        if (game.trade2[7] >= game.trade1[7]):
-          if (game.iteration <=15):
-            game.round1_rational = game.round1_rational + 1
-          else:
-            game.round2_rational = game.round2_rational + 1
-
+          chips[i] = chips[i] + trade_taken[i]
 
       game.iteration = game.iteration + 1
 
@@ -209,6 +206,10 @@ class MainPage(webapp.RequestHandler):
           write('<td style="background-color:%s; color:%s;">%u</td>' % (HTML_COLORS[i], HTML_COLORS_FG[i], chips[i]))
         write('</tr></table></div>')
 
+        # Let the user know if the last trade failed (fraud!)
+        if not game.trade_honoured:
+          write('<div id="scam">You were scammed!  The trade you tried to accept was fraudulent -- better luck next time.</div>')
+
         #Print out the two choices
         write('<div id="chips">')
         write('<div style="padding-bottom:10px;"><h2>Choose between these two trades:</h2></div>')
@@ -216,14 +217,29 @@ class MainPage(webapp.RequestHandler):
         trade_row_start = '''<tr>
 <td style="width:200px">
   <FORM METHOD="POST" ACTION="/gameplay" style=" padding:0; margin:0">
-    <INPUT type="submit" name="Choice_%u" value="Accept Trade %u">
+    <INPUT type="submit" name="Choice_%u" value="Accept Trade %u" style="height:%upx">%s
   </FORM>
 </td>'''
+        warning = '''
+<div id="warning">
+  WARNING: There is a <u>%.0f%%</u> chance this
+  offer is a <u>fraud</u> and won\'t have any impact!
+</div>'''
         for t in range(1, 3):
           if t == 2:
             write('<tr style="height:20px"><td colspan="%u" style="background-color:#444444;"></td></tr>' % (NUM_COLORS+1))
-          write(trade_row_start % (t, t))
           trade = trade1 if t == 1 else trade2
+
+          # show a warning about a dishonest trader in the second half for the rational choice
+          rh = 100
+          extra = ''
+          if game.iteration > HALFWAY_POINT and game.trade_honesty < 1.0:
+            other_trade = trade1 if t != 1 else trade2
+            if trade[VALUE_INDEX] > other_trade[VALUE_INDEX]:
+              rh = 50
+              extra =  warning % (100.0 - 100.0*game.trade_honesty)
+
+          write(trade_row_start % (t, t, rh, extra))
           for i in range(NUM_COLORS):
             if HIDE_UNNEEDED_TRADE_CELLS and trade[i]==0:
               write('<td style="background-color:#CCCCCC"></td>')
