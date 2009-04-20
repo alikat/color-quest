@@ -74,10 +74,10 @@ def get_high_scores_html():
     hscores = get_high_scores()
     table_body = ''.join([get_high_scores_row_html(hs) for hs in hscores])
     return """
-<table border="1">
-  <tr><th colspan="2" style="text-align:center;">Hall of Fame</th></tr>
+<span id="hof"><table>
+  <tr><th colspan="2" style="text-align:center;"><h2>Hall of Fame</h2></th></tr>
   <tr><th>Who</th><th>Score</th></tr>
-""" + table_body + '</table>'
+""" + table_body + '</table></span>'
 
 def get_high_scores_row_html(hs):
     """Returns the HTML representation of a high score row."""

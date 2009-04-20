@@ -1,0 +1,53 @@
+body {
+	background-color: #444444;	
+}
+
+h2, h3, h4 {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+div#wrap {
+	background-color: #FFFFFF;
+    border: 10px solid #440000;
+    margin-left: auto;
+    margin-right: auto;
+    width: 1000px;
+}
+
+#hof table, #hof th, #hof td {
+    border-color: black;
+    border-style: solid;
+    border-width: 2px 2px 2px 2px;
+    border-collapse: collapse;
+    margin: 0 0 0 0;
+}
+
+#hof th {
+    background-color: #CCCCCC;
+    border-width: 1px 1px 2px 2px;
+    padding: 6px;
+}
+
+#hof td {
+    border-width: 1px 1px 0 0;
+    padding: 6px;
+}
+
+#trail table, #trail th, #trail td, #player td, #fire td {
+    border-color: white;
+    border-width: 2px 2px 2px 2px;
+}
+
+#trail td, #player td, #fire td {
+    height: 30px;
+    width: 30px;
+}
+
+td#player {
+    background-image: url(images/player.png);
+}
+
+td#fire {
+    background-image: url(images/flames.gif);
+}

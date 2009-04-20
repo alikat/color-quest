@@ -8,6 +8,8 @@ from google.appengine.ext import db
 from html import write_header, write_footer
 from models import Gamestate
 
+COLORS = ['red', 'green', 'orange', 'blue', 'yellow', 'violet', 'black']
+
 class MainPage(webapp.RequestHandler):
   def post(self):
     user = users.get_current_user()
@@ -142,20 +144,7 @@ class MainPage(webapp.RequestHandler):
         #Only send remaining trail
           for i in range(game.location+1, len(game.trail)):
             c = game.trail[i]
-            if c==0:
-              trail_temp.append('red')
-            if c==1:
-              trail_temp.append('green')
-            if c==2:
-              trail_temp.append('orange')
-            if c==3:
-              trail_temp.append('blue')
-            if c==4:
-              trail_temp.append('yellow')
-            if c==5:
-              trail_temp.append('violet')
-            if c==6:
-              trail_temp.append('black')
+            trail_temp.append(COLORS[c])
 
           order_var = random.random()
 
@@ -187,7 +176,7 @@ class MainPage(webapp.RequestHandler):
 
         game.put()
 
-      # Print out the table displaying the game state data
+        # Print out the table displaying the game state data
         self.response.out.write("""
 	<table border="7" bordercolordark="#5599CC" bordercolorlight="#CCEEDF" style="margin-top:-22px">
 	      <tr>
@@ -195,33 +184,24 @@ class MainPage(webapp.RequestHandler):
               <font color="#550000" size=+1><b>Trail</b></font></div></td>
 	      </tr>
 	      <tr>
-	      <td height="38" colspan="4" bordercolor="#FFFFFF"><p>
-              <table><tr>
+	      <td colspan="4" bordercolor="#FFFFFF"><p>
+              <table id="trail"><tr>
           """)
-      # Print out the trail, colour in the trail as appropriate
-        for i in (range(31)):
-          if (i == game.location + 1):
-            self.response.out.write(""" <td width="30" height="30"> <img width="30" height="30" src="/images/Stick_sm_016.png">&nbsp;</td>""")
-          else:
-            if (i <= game.iteration - 7):
-              self.response.out.write(""" <td width="30" height="30"> <img width="30" height="30" src="/images/flammes-38.gif">&nbsp;</td>""")
-            else:
-              if (game.trail[i-1] == -1):
-                self.response.out.write(""" <td bgcolor="white" width="30" height="30">&nbsp;</td>""")
-              if (game.trail[i-1] == 0):
-                self.response.out.write(""" <td bgcolor="red" width="30" height="30">&nbsp;</td> """)
-              if (game.trail[i-1] == 1):
-                self.response.out.write(""" <td bgcolor="green" width="30" height="30">&nbsp;</td> """)
-              if (game.trail[i-1] == 2):
-                self.response.out.write(""" <td bgcolor="orange" width="30" height="30">&nbsp;</td> """)
-              if (game.trail[i-1] == 3):
-                self.response.out.write(""" <td bgcolor="blue" width="30" height="30">&nbsp;</td> """)
-              if (game.trail[i-1] == 4):
-                self.response.out.write(""" <td bgcolor="yellow" width="30" height="30">&nbsp;</td> """)
-              if (game.trail[i-1] == 5):
-                self.response.out.write(""" <td bgcolor="violet" width="30" height="30">&nbsp;</td> """)
 
-            #Output the chip counts of each colour
+        # Print out the trail, colour in the trail as appropriate
+        for i in (range(31)):
+          if i == game.location + 1:
+            idf = 'id="player"'
+          elif i <= game.iteration - 7:
+            idf = 'id="fire"'
+          else:
+            idf = ''
+
+          color_num = game.trail[i-1]
+          color = 'white' if color_num == -1 else COLORS[color_num]
+          self.response.out.write("""<td %s bgcolor="%s">&nbsp;</td>""" % (idf, color))
+
+        #Output the chip counts of each colour
         self.response.out.write("""  </tr></table>
               </p></td></tr> <tr>
 	      <td bordercolor="#334477" bgcolor="#FFDDAA"><div align="center"><b>Your Chips</b></font></div></td>
