@@ -18,6 +18,13 @@ class Gamestate(db.Model):
   trade1 = db.ListProperty(long)
   trade2 = db.ListProperty(long)
 
+  # float from [0.0, 1.0] which represents the probability durng the "round 2"
+  # trades that the trade will actually be fulfilled if accepted.
+  trade_honesty = db.FloatProperty()
+
+  # boolean which describes whether or not the last trade was honoured
+  trade_honoured = db.BooleanProperty()
+
   # true once the game is finalized by end.py - prevents end.py from being run
   # more than once for a given game
   finalized = db.BooleanProperty()
