@@ -6,7 +6,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 
 from html import write_header, write_footer
-from models import Gamestate, put_safe
+from models import Gamestate, fetch_safe, put_safe
 
 class MainPage(webapp.RequestHandler):
   def post(self):
@@ -17,7 +17,7 @@ class MainPage(webapp.RequestHandler):
                         ORDER BY date DESC
                         LIMIT 1 """, user)
 
-      games = q.fetch(1)
+      games = fetch_safe(q, 1)
 
       # redirect to the main page if we didn't find any games for this user
       if (len(games) == 0):
@@ -121,7 +121,7 @@ class MainPage(webapp.RequestHandler):
                           WHERE player = :1
                           ORDER BY date DESC
                           LIMIT 1""", user)
-      games = q.fetch(1)
+      games = fetch_safe(q, 1)
 
       # redirect to the main page if we didn't find any games for this user
       if (len(games) == 0):

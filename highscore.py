@@ -2,7 +2,7 @@ import datetime
 
 from google.appengine.ext import db
 
-from models import HighScore, put_safe
+from models import HighScore, fetch_safe, put_safe
 
 # number of high scores to track
 NUM_HIGH_SCORES = 10
@@ -48,7 +48,7 @@ def add_high_score(game):
 
     # remove the lowest score
     q = db.GqlQuery(GQL_HIGH_SCORES)
-    hscores = q.fetch(1, NUM_HIGH_SCORES)
+    hscores = fetch_safe(q, 1, NUM_HIGH_SCORES)
     if len(hscores) > 0:
         db.delete(hscores)
 
@@ -56,7 +56,7 @@ def get_high_scores():
     """Returns an array of the top NUM_HIGH_SCORES high scores."""
     # make sure this is the user' first time playing
     q = db.GqlQuery(GQL_HIGH_SCORES)
-    hscores = q.fetch(NUM_HIGH_SCORES)
+    hscores = fetch_safe(q, NUM_HIGH_SCORES)
 
     # pad out the list with junk if we don't have the min # of high scores yet
     num_missing = NUM_HIGH_SCORES - len(hscores)

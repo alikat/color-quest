@@ -5,7 +5,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 
-from models import Gamestate, put_safe
+from models import Gamestate, fetch_safe, put_safe
 
 class Initialize(webapp.RequestHandler):
   def get(self):
@@ -19,7 +19,7 @@ class Initialize(webapp.RequestHandler):
                           WHERE player = :1
                           ORDER BY date DESC
                           LIMIT 1""", user)
-    games = q.fetch(1)
+    games = fetch_safe(q, 1)
 
     # redirect to the main page if we didn't find any games for this user
     if len(games)==0 or games[0].game_over:

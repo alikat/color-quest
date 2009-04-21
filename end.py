@@ -7,7 +7,7 @@ from google.appengine.ext import db
 
 from highscore import check_completed_game_for_high_score
 from html import write_header, write_footer
-from models import Gamestate, put_safe
+from models import Gamestate, fetch_safe, put_safe
 
 class EndGame(webapp.RequestHandler):
   def get(self):
@@ -18,7 +18,7 @@ class EndGame(webapp.RequestHandler):
                         ORDER BY date DESC
                         LIMIT 1 """, user)
 
-      games = q.fetch(1)
+      games = fetch_safe(q, 1)
 
       # redirect to the main page if we didn't find any games for this user
       if (len(games) == 0):

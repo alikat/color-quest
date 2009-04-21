@@ -27,6 +27,18 @@ class HighScore(db.Model):
   date = db.DateTimeProperty(auto_now_add=True)
   score = db.IntegerProperty()
 
+def fetch_safe(obj, num, offset=0):
+  """Fetches num records from the datastore using the specified query object obj
+  and retries up to three times if a failure occurs."""
+  count = 0
+  while True:
+    try:
+      return obj.fetch(num, offset)
+    except db.Timeout:
+      count += 1
+      if count == 3:
+        raise
+
 def put_safe(obj):
   """Puts obj into the datastore and retries up to three times if a failure occurs."""
   count = 0
