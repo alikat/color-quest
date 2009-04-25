@@ -8,7 +8,7 @@ import datetime
 # you can also build some data on the fly with functions:
 #     get_rational_data - gets data which are rational some % of the time and
 #                         which has a certain # of choices made in round 2
-#                         EX: get_rational_data(data_first_fin, .8, 5) => 80% rational in round 1, 5 round 2 data points
+#                         EX: get_rational_data(data_first_and_fin, .8, 5) => 80% rational in round 1, 5 round 2 data points
 
 class Data:
     def __init__(self, id, player, timestamp, iteration, location, r1c, r1r, r2c, r2r, game_over, score, trail):
@@ -277,7 +277,7 @@ data_first_only = filter(is_new_player, data_all)
 
 
 # data without duplicates and only for finished games
-data_first_fin = filter(lambda d : d.game_over, data_first_only)
+data_first_and_fin = filter(lambda d : d.game_over, data_first_only)
 
 
 # data where first round is rational at least some percentage of the time AND
