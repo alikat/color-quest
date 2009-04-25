@@ -36,7 +36,7 @@ class ResultAccumulator:
     def add_data(self, v):
         self.values.append(v)
 
-    def compute_stats(self):
+    def compute_stats(self, quiet=False):
         n = len(self.values)
         if n == 0:
             return
@@ -67,18 +67,47 @@ class ResultAccumulator:
         self.sdev_mean = self.sdev / sqrt(n)
 
         for i in INTERVALS:
-            (lower, upper) = self.conf(i)
+            (lower, upper) = self.conf(i, quiet)
             self.lower_bounds[i] = lower
             self.upper_bounds[i] = upper
 
-    def conf(self, percent):
+    def conf(self, percent, quiet):
         n = len(self.values)
         if n > 100:
-            print sys.stderr, "warning: limited t-table => overestimating error"
+            if not quiet:
+                print >> sys.stderr, "warning: limited t-table => overestimating error (df=%u)" % n
             n = 100
         t = T_DISTRIBUTION[percent][n]
         d = t * self.sdev_mean
         return (self.mean - d, self.mean + d)
+
+    @staticmethod
+    def get_latex_table_header(extra1='', extra2=''):
+        return '''
+\\begin{tabular}{''' + extra1 + '''|r|r|r|r|r|p{1in}|p{1in}|}
+    \\hline
+    ''' + extra2 + '''\\textbf{Min} & \\textbf{Max} & \\textbf{Median} & \\textbf{Mean} & \\textbf{StdDev} & \\textbf{Lower} & \\textbf{Upper} \\\\
+    \\hline
+'''
+
+    def get_latex_row(self, precision=2, intervals=INTERVALS):
+        ff = '%%.%uf' % precision
+        lower = upper = ''
+        for i in intervals:
+            fmt = '%s\\%%: ' + ff
+            if lower != '':
+                lower += ' \\newline '
+                upper += ' \\newline '
+            p = str(i/100.0) if i == 9995 else str(i)
+            lower += (fmt % (p, self.lower_bounds[i]))
+            upper += (fmt % (p, self.upper_bounds[i]))
+
+        fmt = '    ' + ff + ' & ' + ff + ' & ' + ff + ' & ' + ff + ' & ' + ff + ' & %s & %s \\\\ \n   \\hline'
+        return fmt % (self.min, self.max, self.med, self.mean, self.sdev, lower, upper)
+
+    @staticmethod
+    def get_latex_table_footer():
+        return '''\\end{tabular}'''
 
     def __str__(self):
         fmt = 'min=%f max=%f tot=%f med=%f mean=%f var=%f sdev=%f sdev_mean=%f df=%u lowers=%f uppers=%f'
