@@ -282,6 +282,11 @@ data_first_and_fin = filter(lambda d : d.game_over, data_first_only)
 
 # data where first round is rational at least some percentage of the time AND
 # there have been at least some number of decisions made in the second round
-def get_rational_data(d, min_rational_per, min_r2_choices):
+def get_rational_data_per(d, min_rational_per, min_r2_choices):
     return filter(lambda d : d.rationality(1)>=min_rational_per and d.num_choices[2]>=min_r2_choices,
+                  data_first_only)
+
+# same as above except first parameter is # of rational round 1 trades rather % of those
+def get_rational_data_discrete(d, min_rational_num, max_rational_num, min_r2_choices):
+    return filter(lambda d : d.num_rational[1]>=min_rational_num and d.num_rational[1]<=max_rational_num and d.num_choices[2]>=min_r2_choices,
                   data_first_only)
