@@ -2,4 +2,4 @@ ex.pdf
 ex.aux
 ex.out
 *.log
-simple_stats.tex
+simple_stats*.tex
