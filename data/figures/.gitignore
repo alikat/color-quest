@@ -1,5 +1,6 @@
 rationality_scatter*.gnuplot
 score_versus_rationality*.gnuplot
+rationality*df*.gnuplot
 *.eps
 *.pdf
 *.png

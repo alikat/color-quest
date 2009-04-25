@@ -116,6 +116,54 @@ plot "../dat/%s.dat" using 1:2 with linespoints ls 1
 ''' % (round_for, plot_name, plot_name)
     out_plot.close()
 
+def rationality_cpdf_plot(out_dat, plot_name, min_rational_r1_choices, c, round_for, is_cdf):
+    print >> out_dat, '# Rationality *DF'
+    data = filter_common(get_rational_data_discrete(data_first_and_fin, min_rational_r1_choices, MAX_R1_CHOICES, c))
+    rats = []
+    for d in data:
+        rats.append(int(d.rationality(round_for)*100.0))
+
+    cdf = {}
+    pdf = {}
+    rats.sort()
+    i = 0
+    n = float(len(rats))
+    for r in rats:
+        i += 1
+        cdf[r] = i / n
+        if pdf.has_key(r):
+            pdf[r] += (1 / n)
+        else:
+            pdf[r] = 1 / n
+
+    for r in rats:
+        df = cdf[r] if is_cdf else pdf[r]
+        print >> out_dat, '%f\t%f\n' % (r, df*100.0)
+
+    out_plot = open('figures/' + plot_name + '.gnuplot', 'w')
+    print >> out_plot, '''
+unset title
+unset label
+set nokey
+set autoscale
+set size 1.0, 1.0
+
+set xlabel "%% of Round %u Trades which were Rational"
+set grid x
+
+set ylabel "%s"
+set grid y
+set yr [0:100]
+
+set terminal png
+set output "%s.png"
+
+set style line 1 lt 1 lw 3 lc rgb "#000000" pt 2
+
+plot "../dat/%s.dat" using 1:2 with linespoints ls 1
+''' % (round_for, 'cdf' if is_cdf else 'pdf', plot_name, plot_name)
+    out_plot.close()
+
 def main():
     min_round2_choices_thresholds = [1, 3, 5, 10, 14]
 
@@ -135,6 +183,13 @@ def main():
         f = open('dat/' + name + '.dat', 'w')
         score_versus_rationality_plot(f, name, MIN_R1_RATIONAL_TRADES, i, round)
         f.close()
+
+    for round in [1,2]:
+        for b in [True, False]:
+            name = 'rationality%u_%s_%u' % (round, 'cdf' if b else 'pdf', i)
+            f = open('dat/' + name + '.dat', 'w')
+            rationality_cpdf_plot(f, name, MIN_R1_RATIONAL_TRADES, i, round, b)
+            f.close()
 
     return 0
 
