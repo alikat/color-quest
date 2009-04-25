@@ -1,5 +1,5 @@
 application: color-quest
-version: 9
+version: 10
 runtime: python
 api_version: 1
 
@@ -18,6 +18,9 @@ handlers:
 
 - url: /endgame\.html
   script: end.py
+
+- url: /dump
+  script: dump.py
 
 - url: /favicon.ico
   static_files: images/favicon.ico
