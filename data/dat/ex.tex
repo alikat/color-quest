@@ -1,0 +1,33 @@
+\documentclass[onecolumn,10pt]{article}
+
+\usepackage[margin=0.75in]{geometry}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{subfigure}
+\usepackage{xspace}
+
+\title{Container to show the tex files generated in the dat folder}
+\author{}
+
+\sloppy
+\clubpenalty	2000
+\widowpenalty	2000
+
+
+\begin{document}
+
+\definecolor{todocolor}{rgb}{0.8,0.2,0.2}
+\newcommand{\todo}[1]{\textsf{\color{todocolor} #1}}
+
+\maketitle
+
+\section{Simple Stats}
+\textbf{\% Of Free Trades Which Were Taken in Round 2 (Zero Phenomenon)}
+\paragraph{}
+
+
+\input{simple_stats}
+
+\end{document}
