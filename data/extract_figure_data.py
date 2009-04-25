@@ -70,7 +70,7 @@ set ylabel "%% of Round 2 Trades which were Rational"
 set grid y
 set yr [0:100]
 
-set terminal png
+set terminal png size 800,600
 set output "%s.png"
 
 set style line 1 lt 1 lw 2 lc rgb "#000000" pt 2
@@ -89,7 +89,7 @@ def score_versus_rationality_plot(out_dat, plot_name, min_rational_r1_choices, c
 
     points.sort()
     for p in points:
-        print >> out_dat, '%f\t%f\n' % (p[0], p[1])
+        print >> out_dat, '%f\t%f' % (p[0], p[1])
 
     out_plot = open('figures/' + plot_name + '.gnuplot', 'w')
     print >> out_plot, '''
@@ -107,12 +107,12 @@ set ylabel "%% of Round %u Trades which were Rational"
 set grid y
 set yr [0:100]
 
-set terminal png
+set terminal png size 800,600
 set output "%s.png"
 
 set style line 1 lt 1 lw 3 lc rgb "#000000" pt 2
 
-plot "../dat/%s.dat" using 1:2 with linespoints ls 1
+plot "../dat/%s.dat" using 1:2 with points ls 1
 ''' % (round_for, plot_name, plot_name)
     out_plot.close()
 
@@ -138,7 +138,7 @@ def rationality_cpdf_plot(out_dat, plot_name, min_rational_r1_choices, c, round_
 
     for r in rats:
         df = cdf[r] if is_cdf else pdf[r]
-        print >> out_dat, '%f\t%f\n' % (r, df*100.0)
+        print >> out_dat, '%f\t%f' % (r, df*100.0)
 
     out_plot = open('figures/' + plot_name + '.gnuplot', 'w')
     print >> out_plot, '''
@@ -153,16 +153,55 @@ set grid x
 
 set ylabel "%s"
 set grid y
-set yr [0:100]
 
-set terminal png
+set terminal png size 800,600
 set output "%s.png"
 
-set style line 1 lt 1 lw 3 lc rgb "#000000" pt 2
+set style line 1 lt 1 lw 2 lc rgb "#000000" pt 2
 
 plot "../dat/%s.dat" using 1:2 with linespoints ls 1
 ''' % (round_for, 'cdf' if is_cdf else 'pdf', plot_name, plot_name)
     out_plot.close()
+    return cdf
+
+def rationality_compare_plot(out_dat, plot_name, min_rational_r1_choices, c):
+    print >> out_dat, '# Round1Rationality Round2Rationality'
+    data = filter_common(get_rational_data_discrete(data_first_and_fin, min_rational_r1_choices, MAX_R1_CHOICES, c))
+    points = []
+    for d in data:
+        t = (d.rationality(1) - d.rationality(2)) * 100.0
+        points.append(t)
+
+    points.sort()
+    i = 0.0
+    d = 1.0 / (len(points)-1)
+    for p in points:
+        print >> out_dat, '%f\t%f' % (p,i*100.0)
+        i += d
+
+    out_plot = open('figures/' + plot_name + '.gnuplot', 'w')
+    print >> out_plot, '''
+unset title
+unset label
+set nokey
+set autoscale
+set size 1.0, 1.0
+
+set xlabel "Difference in Rationality (Round 1 - Round 2)"
+set grid x
+
+set ylabel "CDF"
+set grid y
+
+set terminal png size 800,600
+set output "%s.png"
+
+set style line 1 lt 1 lw 3 lc rgb "#000000" pt 2
+
+plot "../dat/%s.dat" using 1:2 with points ls 1
+''' % (plot_name, plot_name)
+    out_plot.close()
+
 
 def main():
     min_round2_choices_thresholds = [1, 3, 5, 10, 14]
@@ -184,12 +223,33 @@ def main():
         score_versus_rationality_plot(f, name, MIN_R1_RATIONAL_TRADES, i, round)
         f.close()
 
+    name = 'rationality_compare_%u' % i
+    f = open('dat/' + name + '.dat', 'w')
+    rationality_compare_plot(f, name, 0, i)
+    f.close()
+
+    i = 10
+    cdfs = {}
     for round in [1,2]:
         for b in [True, False]:
             name = 'rationality%u_%s_%u' % (round, 'cdf' if b else 'pdf', i)
             f = open('dat/' + name + '.dat', 'w')
-            rationality_cpdf_plot(f, name, MIN_R1_RATIONAL_TRADES, i, round, b)
+            cdfs[round] = rationality_cpdf_plot(f, name, 0, i, round, b)
             f.close()
+
+    # diff the cdf's
+    name = 'rationalityDiff_cdf_%u' % i
+    f = open('dat/' + name + '.dat', 'w')
+    keys = cdfs[1].keys() + cdfs[2].keys()
+    keys.sort()
+    cur = {1:0, 2:0}
+    for key in keys:
+        for i in [1,2]:
+            cdf = cdfs[i]
+            if cdf.has_key(key):
+                cur[i] = cdf[key]
+        print >> f, '%f\t%f' % (key, cur[1] - cur[2])
+    f.close()
 
     return 0
 
