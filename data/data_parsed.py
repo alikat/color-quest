@@ -5,6 +5,11 @@ import datetime
 #     data_first_only - first result from every player
 #     data_first_and_fin - first result from every player who also finished
 
+# you can also build some data on the fly with functions:
+#     get_rational_data - gets data which are rational some % of the time and
+#                         which has a certain # of choices made in round 2
+#                         EX: get_rational_data(data_first_fin, .8, 5) => 80% rational in round 1, 5 round 2 data points
+
 class Data:
     def __init__(self, id, player, timestamp, iteration, location, r1c, r1r, r2c, r2r, game_over, score, trail):
         self.id = id
@@ -13,11 +18,17 @@ class Data:
         self.date_str = self.date.strftime('%B %d %Y %H:%M:%S') # date a string
         self.iteration = iteration
         self.location = location
-        self.num_choices = [r1c, r2c]
-        self.num_rational = [r1r, r2r]
+        self.num_choices = [0, r1c, r2c]    # index 1 = round 1, index 2 = round 2
+        self.num_rational = [0, r1r, r2r]
         self.game_over = game_over
         self.score = score
         self.trail = trail
+
+    def rationality(self, round_num):
+        if self.num_choices[round_num] > 0:
+            return self.num_rational[round_num] / float(self.num_choices[round_num])
+        else:
+            return 0
 
     def __str__(self):
         # same order as GAE
@@ -267,3 +278,10 @@ data_first_only = filter(is_new_player, data_all)
 
 # data without duplicates and only for finished games
 data_first_fin = filter(lambda d : d.game_over, data_first_only)
+
+
+# data where first round is rational at least some percentage of the time AND
+# there have been at least some number of decisions made in the second round
+def get_rational_data(d, min_rational_per, min_r2_choices):
+    return filter(lambda d : d.rationality(1)>=min_rational_per and d.num_choices[2]>=min_r2_choices,
+                  data_first_only)
