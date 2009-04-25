@@ -79,12 +79,12 @@ plot "../dat/%s.dat" using 1:2 with points ls 1
 ''' % (plot_name, plot_name)
     out_plot.close()
 
-def score_versus_rationality_plot(out_dat, plot_name, min_rational_r1_choices, c):
+def score_versus_rationality_plot(out_dat, plot_name, min_rational_r1_choices, c, round_for):
     print >> out_dat, '# Score Round2Rationality'
     data = filter_common(get_rational_data_discrete(data_first_and_fin, min_rational_r1_choices, MAX_R1_CHOICES, c))
     points = []
     for d in data:
-        t = (d.score, d.rationality(2)*100.0)
+        t = (d.score, d.rationality(round_for)*100.0)
         points.append(t)
 
     points.sort()
@@ -130,9 +130,11 @@ def main():
 
     MIN_R1_RATIONAL_TRADES = 10
     i = MIN_R2_TRADES = 5
-    f = open('dat/score_versus_rationality_%u.dat' % i, 'w')
-    score_versus_rationality_plot(f, 'score_versus_rationality_%u' % i, MIN_R1_RATIONAL_TRADES, i)
-    f.close()
+    for round in [1,2]:
+        name = 'score_versus_rationality%u_%u' % (round, i)
+        f = open('dat/' + name + '.dat', 'w')
+        score_versus_rationality_plot(f, name, MIN_R1_RATIONAL_TRADES, i, round)
+        f.close()
 
     return 0
 
