@@ -79,6 +79,43 @@ plot "../dat/%s.dat" using 1:2 with points ls 1
 ''' % (plot_name, plot_name)
     out_plot.close()
 
+def score_versus_rationality_plot(out_dat, plot_name, min_rational_r1_choices, c):
+    print >> out_dat, '# Score Round2Rationality'
+    data = filter_common(get_rational_data_discrete(data_first_and_fin, min_rational_r1_choices, MAX_R1_CHOICES, c))
+    points = []
+    for d in data:
+        t = (d.score, d.rationality(2)*100.0)
+        points.append(t)
+
+    points.sort()
+    for p in points:
+        print >> out_dat, '%f\t%f\n' % (p[0], p[1])
+
+    out_plot = open('figures/' + plot_name + '.gnuplot', 'w')
+    print >> out_plot, '''
+unset title
+unset label
+set nokey
+set autoscale
+set size 1.0, 1.0
+
+set xlabel "Score"
+set grid x
+set xr [70:240]
+
+set ylabel "%% of Round 2 Trades which were Rational"
+set grid y
+set yr [0:100]
+
+set terminal postscript eps color enhanced linewidth 3 dashed
+set output "%s.eps"
+
+set style line 1 lt 1 lw 3 lc rgb "#000000" pt 2
+
+plot "../dat/%s.dat" using 1:2 with linespoints ls 1
+''' % (plot_name, plot_name)
+    out_plot.close()
+
 def main():
     min_round2_choices_thresholds = [1, 3, 5, 10, 14]
 
@@ -90,6 +127,12 @@ def main():
         f = open('dat/rationality_scatter_%u.dat' % i, 'w')
         rationality_scatter_plot(f, 'rationality_scatter_%u' % i, i)
         f.close()
+
+    MIN_R1_RATIONAL_TRADES = 10
+    i = MIN_R2_TRADES = 5
+    f = open('dat/score_versus_rationality_%u.dat' % i, 'w')
+    score_versus_rationality_plot(f, 'score_versus_rationality_%u' % i, MIN_R1_RATIONAL_TRADES, i)
+    f.close()
 
     return 0
 

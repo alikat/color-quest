@@ -1,4 +1,5 @@
 rationality_scatter*.gnuplot
+score_versus_rationality*.gnuplot
 *.eps
 *.pdf
 fit.log
