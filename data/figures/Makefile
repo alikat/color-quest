@@ -1,30 +1,17 @@
 # Makefile to build the plots
 
 SRCS = $(wildcard *.gnuplot)
-EPSS = $(SRCS:.gnuplot=.eps)
-PDFS = $(SRCS:.gnuplot=.pdf)
-
-BSRCS = $(wildcard *.bplot)
-EPSS += $(BSRCS:.bplot=.eps)
-PDFS += $(BSRCS:.bplot=.pdf)
+PNGS = $(SRCS:.gnuplot=.png)
 
 .PHONY: default clean
-.SUFFIXES: .gnuplot .bplot
+.SUFFIXES: .gnuplot
 
-default: $(PDFS)
+default: $(PNGS)
 
-# build the eps file from gnuplot files
-%.eps : %.gnuplot
+# build the png file from gnuplot files
+%.png : %.gnuplot
 	gnuplot $<
-
-# build the eps file from bplot files
-%.eps : %.bplot
-	../bargraph.pl -eps $< > $@
-
-# build the pdf file
-%.pdf : %.eps
-	epstopdf $<
 
 # remove the graph outputs
 clean:
-	rm -f $(EPSS) $(PDFS)
+	rm -f $(PNGS)

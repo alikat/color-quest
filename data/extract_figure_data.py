@@ -70,8 +70,8 @@ set ylabel "%% of Round 2 Trades which were Rational"
 set grid y
 set yr [0:100]
 
-set terminal postscript eps color enhanced linewidth 3 dashed
-set output "%s.eps"
+set terminal png
+set output "%s.png"
 
 set style line 1 lt 1 lw 2 lc rgb "#000000" pt 2
 
@@ -103,17 +103,17 @@ set xlabel "Score"
 set grid x
 set xr [70:240]
 
-set ylabel "%% of Round 2 Trades which were Rational"
+set ylabel "%% of Round %u Trades which were Rational"
 set grid y
 set yr [0:100]
 
-set terminal postscript eps color enhanced linewidth 3 dashed
-set output "%s.eps"
+set terminal png
+set output "%s.png"
 
 set style line 1 lt 1 lw 3 lc rgb "#000000" pt 2
 
 plot "../dat/%s.dat" using 1:2 with linespoints ls 1
-''' % (plot_name, plot_name)
+''' % (round_for, plot_name, plot_name)
     out_plot.close()
 
 def main():
