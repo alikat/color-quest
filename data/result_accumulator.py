@@ -91,6 +91,9 @@ class ResultAccumulator:
 '''
 
     def get_latex_row(self, precision=2, intervals=INTERVALS):
+        if len(self.values) == 0:
+            return ' & & & & & & \\\\ \n \\hline'
+
         ff = '%%.%uf' % precision
         lower = upper = ''
         for i in intervals:

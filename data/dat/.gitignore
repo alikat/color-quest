@@ -3,3 +3,4 @@ ex.aux
 ex.out
 *.log
 simple_stats*.tex
+rationality_scatter*.dat

@@ -1,0 +1,4 @@
+rationality_scatter*.gnuplot
+*.eps
+*.pdf
+fit.log
