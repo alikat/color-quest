@@ -14,6 +14,16 @@ MAX_R1_CHOICES = 13
 # which confidence intervals to generate (only valid choices are 90, 95, 99, and 9995)
 INTERVALS = [95, 9995]
 
+# whether to ignore results where round 2 is perfectly irrational: guess that
+# people did not read the rules or were replaying for a high score with a new
+# account
+REMOVE_PERFECTLY_IRRATIONAL_ROUND_2 = False
+
+def filter_common(data):
+    if REMOVE_PERFECTLY_IRRATIONAL_ROUND_2:
+        data = filter(lambda d : d.num_choices[2]!=d.num_rational[2], data)
+    return data
+
 def simple_stats_table(out, precision, c):
     """
     Computes some basic statistics about the estimated impact of the
@@ -31,7 +41,7 @@ def simple_stats_table(out, precision, c):
             l = num_rational_in_r1
             u = num_rational_in_r1
             title = str(u)
-        data = get_rational_data_discrete(data_first_and_fin, l, u, c)
+        data = filter_common(get_rational_data_discrete(data_first_and_fin, l, u, c))
         round2_rationalities = [(1.0-d.rationality(2))*100.0 for d in data]
         ra = ResAcc(round2_rationalities)
         ra.compute_stats(True)
@@ -41,7 +51,8 @@ def simple_stats_table(out, precision, c):
 
 def rationality_scatter_plot(out_dat, plot_name, c):
     print >> out_dat, '# Round1Rationality Round2Rationality'
-    for d in data_first_and_fin:
+    data = filter_common(data_first_and_fin)
+    for d in data:
         print >> out_dat, '%f\t%f\n' % (d.rationality(1)*100.0, d.rationality(2)*100.0)
 
     out_plot = open('figures/' + plot_name + '.gnuplot', 'w')
